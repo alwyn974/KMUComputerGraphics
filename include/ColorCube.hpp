@@ -20,13 +20,13 @@ private:
     GLuint vboCubeVertices, vboCubeColors, iboCubeElements;
     int _width;
     int _height;
-//    std::vector<GLfloat> cubeVertices; // TODO: replace later with glm::vec3
-//    std::vector<GLfloat> cubeColors;
-//    std::vector<GLushort> cubeElements;
+    std::vector<GLfloat> cubeVertices; // TODO: replace later with glm::vec3
+    std::vector<GLfloat> cubeColors;
+    std::vector<GLushort> cubeElements;
 
-    GLfloat cubeVertices[24];
-    GLfloat cubeColors[24];
-    GLshort cubeElements[36];
+//    GLfloat cubeVertices[24];
+//    GLfloat cubeColors[24];
+//    GLshort cubeElements[36];
 
     void setup();
 };

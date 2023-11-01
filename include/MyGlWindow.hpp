@@ -7,6 +7,7 @@
 
 #include "Loader.hpp"
 #include "ColorCube.hpp"
+#include "Viewer.hpp"
 #include "GL/gl3w.h"
 #include <glfw/glfw3.h>
 #include <glm/glm.hpp>

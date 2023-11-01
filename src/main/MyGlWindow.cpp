@@ -11,8 +11,6 @@ MyGLWindow::MyGLWindow(int width, int height) {
     this->setupBuffer();
 }
 
-GLuint vaoHandle, vboPosition, vboColor;
-
 void MyGLWindow::draw() {
     // position, size
     glViewport(0, 0, _width, _height);

@@ -2,7 +2,7 @@
 // Author: mankyu sung
 
 #include <iostream>
-#include "Viewer.h"
+#include "Viewer.hpp"
 #include "glm/gtc/quaternion.hpp"
 
 static float DEFAULT_TRANSLATE_SPEED = 0.5;
