@@ -1,7 +1,7 @@
 
 /*author: r3dux
 version : 0.3 - 15 / 01 / 2014
-	  description : Gets GLSL source code either provided as strings or can load from filenames,
+	  description : Gets GLSL source main either provided as strings or can load from filenames,
 					compiles the shaders, creates a shader program which the shaders are linked
 					to, then the program is validated and is ready for use via myProgram.use(),
 					<draw - stuff - here> then calling myProgram.disable();
@@ -89,7 +89,7 @@ private:
         // Get the source string as a pointer to an array of characters
         const char *shaderSourceChars = shaderSource.c_str();
 
-        // Attach the GLSL source code to the shader
+        // Attach the GLSL source main to the shader
         // Params: GLuint shader, GLsizei count, const GLchar **string, const GLint *length
         // Note: The pointer to an array of source chars will be null terminated, so we don't need to specify the length and can instead use NULL.
         glShaderSource(shaderId, 1, &shaderSourceChars, NULL);
@@ -174,7 +174,7 @@ private:
         initialised = true;
     }
 
-    // Private method to load the shader source code from a file
+    // Private method to load the shader source main from a file
     std::string loadShaderFromFile(const std::string filename)
     {
         // Create an input filestream and attempt to open the specified file

@@ -27,6 +27,8 @@ include_directories(include lib/gl3w/include)
 add_executable(KMU lib/gl3w/gl3w.c
         #main.cpp
         opengl.cpp
-        src/MyGlWindow.cpp
+        src/main/MyGlWindow.cpp
+        src/main/Viewer.cpp
+        src/main/ColorCube.cpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)

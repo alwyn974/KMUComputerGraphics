@@ -5,11 +5,21 @@
 #include "MyGlWindow.hpp"
 #include <iostream>
 #include <format>
+#include <memory>
+
+std::unique_ptr<MyGLWindow> myGLWindow;
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GLFW_TRUE);
+}
+
+static void window_size_callback(GLFWwindow *window, int width, int height)
+{
+    if (!myGLWindow)
+         return;
+      myGLWindow->setSize(width, height);
 }
 
 int main(int ac, char **av)
@@ -42,9 +52,10 @@ int main(int ac, char **av)
 //    glfwSwapInterval(1);
 
     glfwSetKeyCallback(window, key_callback);
+    glfwSetWindowSizeCallback(window, window_size_callback);
     glfwSetWindowTitle(window, "MyOpenGLWindow");
 
-    MyGLWindow myGLWindow(width, height);
+    myGLWindow = std::make_unique<MyGLWindow>(width, height);
 
     int frame = 0;
     double lastTime = glfwGetTime();
@@ -53,7 +64,7 @@ int main(int ac, char **av)
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-        myGLWindow.draw();
+        myGLWindow->draw();
         // draw fps
         frame++;
         double currentTime = glfwGetTime();
