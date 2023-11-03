@@ -10,6 +10,8 @@
 #include "Viewer.hpp"
 #include "GL/gl3w.h"
 #include <glfw/glfw3.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include <glm/glm.hpp>
 #include <optional>
 
@@ -19,16 +21,25 @@ public:
 
     void draw();
 
-    void setSize(int width, int height);
+    void setSize(int width, int height)
+    {
+        _width = width;
+        _height = height;
+    };
 
+    void setAspectRatio(float aspectRatio)
+    {
+        viewer->setAspectRatio(aspectRatio);
+    }
+
+    std::optional<Viewer> viewer;
 private:
     ShaderProgram _shaderProgram;
     int _width;
     int _height;
     std::optional<ColorCube> _cube;
 
-    void setupBuffer();
+    void initialize();
 };
-
 
 #endif //KMU_MYGLWINDOW_HPP

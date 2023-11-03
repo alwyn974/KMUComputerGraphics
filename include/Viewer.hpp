@@ -26,7 +26,7 @@ class Viewer {
 	public:
 
 		/** Constructor */
-		Viewer( 
+		explicit Viewer(
 			const glm::vec3 &viewPoint, const  glm::vec3 &viewCenter, const  glm::vec3 &upVector,
 			float fieldOfView, float aspectRatio
 		);
@@ -76,8 +76,8 @@ class Viewer {
 		 *
 		 * zoom: Zoom in or out by changing the distance between the view
 		 * center and the viewpoint; the view center is held fixed.  The 
-		 * distance is changed by a fraction 2.0 ^ (m_zoomFraction*changeVert)
-		 * of the current distance; m_zoomFraction can be altered to adjust
+		 * distance is changed by a fraction 2.0 ^ (zoomFraction*changeVert)
+		 * of the current distance; zoomFraction can be altered to adjust
 		 * zoom speed.
 		 *
 		*/
@@ -95,7 +95,7 @@ class Viewer {
 		 * rotate: Rotate about the view plane axes; the first argument is for 
 		 * rotation about the vertical view axis and the second is for
 		 * rotation about the horizontal view axis.  The amount of rotation
-		 * is controlled by m_rotateSpeed.
+		 * is controlled by rotateSpeed.
 		*/
 		void rotate(float changeHoriz, float changeVert);
 
@@ -131,19 +131,19 @@ class Viewer {
 
 	private:
 
-		glm::vec3 m_viewPoint;
-		glm::vec3 m_viewCenter;
-		glm::vec3 m_upVector;
-		float m_fieldOfView;
-		float m_aspectRatio;
+		glm::vec3 viewPoint;
+		glm::vec3 viewCenter;
+		glm::vec3 upVector;
+		float fieldOfView;
+		float aspectRatio;
 
-		float m_translateSpeed;
-		float m_zoomFraction;
-		float m_rotateSpeed;
+		float translateSpeed;
+		float zoomFraction;
+		float rotateSpeed;
 
-		glm::vec3 m_viewDir;
-		glm::vec3 m_imagePlaneHorizDir;
-		glm::vec3 m_imagePlaneVertDir;
+		glm::vec3 viewDir;
+		glm::vec3 imagePlaneHorizDir;
+		glm::vec3 imagePlaneVertDir;
 
 		/**
 		 * These member variables hold the width and height of the plane that
@@ -153,12 +153,12 @@ class Viewer {
 		 * of an appropriate magnitude.
 		 */
 
-		float m_displayWidth;
-		float m_displayHeight;
+		float displayWidth;
+		float displayHeight;
 
 		/** These are used for tracking */
 
-		float m_lastDesired[3];
+		float lastDesired[3];
 
 		/**
 		 * The following values contain the geometry of our viewing volume: the

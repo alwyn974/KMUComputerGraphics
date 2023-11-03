@@ -4,76 +4,100 @@
 
 #include "MyGlWindow.hpp"
 
-MyGLWindow::MyGLWindow(int width, int height) {
+static float DEFAULT_VIEW_POINT[3] = {5, 5, 5};
+static float DEFAULT_VIEW_CENTER[3] = {0, 0, 0};
+static float DEFAULT_UP_VECTOR[3] = {0, 1, 0};
+
+// there is a glm::lookAt function also
+static glm::mat4 lookAt(glm::vec3 campos, glm::vec3 look, glm::vec3 up)
+{
+    glm::vec3 zaxis = glm::normalize(campos - look);
+    glm::vec3 xaxis = glm::normalize(glm::cross(up, zaxis));
+    glm::vec3 yaxis = glm::cross(zaxis, xaxis);
+
+    glm::mat4 view = glm::mat4(1.0f);
+    view[0][0] = xaxis.x;
+    view[1][0] = xaxis.y;
+    view[2][0] = xaxis.z;
+    view[0][1] = yaxis.x;
+    view[1][1] = yaxis.y;
+    view[2][1] = yaxis.z;
+    view[0][2] = zaxis.x;
+    view[1][2] = zaxis.y;
+    view[2][2] = zaxis.z;
+    view[3][0] = -glm::dot(xaxis, campos);
+    view[3][1] = -glm::dot(yaxis, campos);
+    view[3][2] = -glm::dot(zaxis, campos);
+    return view;
+}
+
+static glm::mat4 perspective(float aspect, float fovy, float nearZ, float farZ)
+{
+    float f = 1.0f / (float) glm::tan(glm::radians(fovy * 0.5f));
+
+    glm::mat4 mat = glm::mat4(0.0f);
+    mat[0][0] = f / aspect;
+    mat[1][1] = f;
+    mat[2][2] = (farZ + nearZ) / (nearZ - farZ);
+    mat[2][3] = -1.0f;
+    mat[3][2] = (2.0f * farZ * nearZ) / (nearZ - farZ);
+    return mat;
+}
+
+MyGLWindow::MyGLWindow(int width, int height)
+{
     _width = width;
     _height = height;
 
-    this->setupBuffer();
+    glm::vec3 viewPoint(DEFAULT_VIEW_POINT[0], DEFAULT_VIEW_POINT[1], DEFAULT_VIEW_POINT[2]);
+    glm::vec3 viewCenter(DEFAULT_VIEW_CENTER[0], DEFAULT_VIEW_CENTER[1], DEFAULT_VIEW_CENTER[2]);
+    glm::vec3 upVector(DEFAULT_UP_VECTOR[0], DEFAULT_UP_VECTOR[1], DEFAULT_UP_VECTOR[2]);
+
+    float aspect = (float) width / (float) height;
+    viewer = Viewer(viewPoint, viewCenter, upVector, 45.0f, aspect);
+
+    this->initialize();
 }
 
-void MyGLWindow::draw() {
+void MyGLWindow::initialize()
+{
+    this->_shaderProgram.initFromFiles("src/resources/shader/simple.vert", "src/resources/shader/simple.frag");
+
+    this->_shaderProgram.addUniform("model");
+    this->_shaderProgram.addUniform("view");
+    this->_shaderProgram.addUniform("projection");
+
+    _cube = ColorCube(_width, _height);
+}
+
+void MyGLWindow::draw()
+{
     // position, size
     glViewport(0, 0, _width, _height);
     glEnable(GL_DEPTH_TEST); // enable depth testing
 
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, -3.0f));
+    glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0, 0.0, 0.0));
+    glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
+    glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
+
+    glm::vec3 eye = viewer->getViewPoint();
+    glm::vec3 look = viewer->getViewCenter();
+    glm::vec3 up = viewer->getUpVector();
+    glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
+
+    glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
+
     // call shader program
     this->_shaderProgram.use();
     // draw
+    glUniformMatrix4fv(this->_shaderProgram.uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+    glUniformMatrix4fv(this->_shaderProgram.uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(this->_shaderProgram.uniform("projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
     if (_cube.has_value())
         _cube->draw();
 
     // unbind shader program
     this->_shaderProgram.disable();
-}
-
-void MyGLWindow::setSize(int width, int height) {
-    _width = width;
-    _height = height;
-}
-
-void MyGLWindow::setupBuffer() {
-    this->_shaderProgram.initFromFiles("src/resources/shader/simple.vert", "src/resources/shader/simple.frag");
-
-    _cube = ColorCube(_width, _height);
-
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    /*float vertices[] = {
-            -0.2f, -0.2f, 0.0f, 1.0f,  // bottom left
-            -0, 0.2f, 0.0f, 1.0f,  // top
-            0.2f, -0.2f, 0.0f, 1.0f,  // bottom right
-    };
-    float colors[] = {
-            1.0f, 0.0f, 0.0f,  // bottom left
-            0.0f, 1.0f, 0.0f,  // top
-            0.0f, 0.0f, 1.0f,  // bottom right
-    };*/
-
-    /*float vertices[] = {
-            -0.2f, -0.2f, 0.0f, 1.0f,  // bottom left
-            -0.2, 0.2, 0.0f, 1.0f,  // top
-            0.2f, 0.2f, 0.0f, 1.0f,  // top right
-            -0.2f, -0.2f, 0.0f, 1.0f,  // bottom left
-            0.2f, -0.2f, 0.0f, 1.0f,  // bottom right
-            0.2f, 0.2f, 0.0f, 1.0f,  // top right
-    };
-    float colors[] = {
-            1.0f, 0.0f, 0.0f,  // bottom left
-            0.0f, 1.0f, 0.0f,  // top
-            0.0f, 0.0f, 1.0f,  // bottom right
-            1.0f, 0.0f, 0.0f,  // bottom left
-            0.0f, 1.0f, 0.0f,  // top
-            0.0f, 0.0f, 1.0f,  // bottom right
-    };*/
-
-    /*float vertex[] = {
-            -0.2f, -0.2f, 0.0f, 1.0f,   1.0f, 0.0f, 0.0f, // bottom left
-            -0.2, 0.2, 0.0f, 1.0f,   0.0f, 1.0f, 0.0f, // top
-            0.2f, 0.2f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f, // top right
-
-            -0.2f, -0.2f, 0.0f, 1.0f,   1.0f, 0.0f, 0.0f, // bottom left
-            0.2f, -0.2f, 0.0f, 1.0f,   0.0f, 1.0f, 0.0f, // bottom right
-            0.2f, 0.2f, 0.0f, 1.0f,   0.0f, 0.0f, 1.0f, // top right
-    };*/
 }

@@ -8,6 +8,20 @@
 #include <memory>
 
 std::unique_ptr<MyGLWindow> myGLWindow;
+bool lButtonDown;
+bool rButtonDown;
+bool mButtonDown;
+double lastMouseX;
+double lastMouseY;
+double cx, cy;
+
+static void window_size_callback(GLFWwindow *window, int width, int height)
+{
+    if (!myGLWindow)
+        return;
+    myGLWindow->setSize(width, height);
+    myGLWindow->setAspectRatio((float) width / (float) height);
+}
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
@@ -15,11 +29,62 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-static void window_size_callback(GLFWwindow *window, int width, int height)
+static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos)
 {
-    if (!myGLWindow)
-         return;
-      myGLWindow->setSize(width, height);
+    cx = xpos;
+    cy = ypos;
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (action == GLFW_PRESS) {
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+        lastMouseX = xpos;
+        lastMouseY = ypos;
+    }
+
+    if (button == GLFW_MOUSE_BUTTON_LEFT) {
+        if (GLFW_PRESS == action)
+            lButtonDown = true;
+        else if (GLFW_RELEASE == action)
+            lButtonDown = false;
+    }
+
+    else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+        if (GLFW_PRESS == action)
+            rButtonDown = true;
+        else if (GLFW_RELEASE == action)
+            rButtonDown = false;
+    }
+
+    else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+        if (GLFW_PRESS == action)
+            mButtonDown = true;
+        else if (GLFW_RELEASE == action)
+            mButtonDown = false;
+    }
+}
+
+void mouseDragging(double width, double height)
+{
+    if (lButtonDown) {
+        float fractionChangeX = static_cast<float>(cx - lastMouseX) / static_cast<float>(width);
+        float fractionChangeY = static_cast<float>(lastMouseY - cy) / static_cast<float>(height);
+        myGLWindow->viewer->rotate(fractionChangeX, fractionChangeY);
+    }
+    else if (mButtonDown) {
+        float fractionChangeX = static_cast<float>(cx - lastMouseX) / static_cast<float>(width);
+        float fractionChangeY = static_cast<float>(lastMouseY - cy) / static_cast<float>(height);
+        myGLWindow->viewer->zoom(fractionChangeY);
+    }
+    else if (rButtonDown) {
+        float fractionChangeX = static_cast<float>(cx - lastMouseX) / static_cast<float>(width);
+        float fractionChangeY = static_cast<float>(lastMouseY - cy) / static_cast<float>(height);
+        myGLWindow->viewer->translate(-fractionChangeX, -fractionChangeY, 1);
+    }
+    lastMouseX = cx;
+    lastMouseY = cy;
 }
 
 int main(int ac, char **av)
@@ -53,6 +118,9 @@ int main(int ac, char **av)
 
     glfwSetKeyCallback(window, key_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, cursor_pos_callback);
+
     glfwSetWindowTitle(window, "MyOpenGLWindow");
 
     myGLWindow = std::make_unique<MyGLWindow>(width, height);
@@ -78,6 +146,8 @@ int main(int ac, char **av)
         glfwSwapBuffers(window);
         // poll events
         glfwPollEvents();
+
+        mouseDragging(width, height);
     }
     glfwDestroyWindow(window);
     glfwTerminate();
