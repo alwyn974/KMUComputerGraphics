@@ -63,9 +63,10 @@ void MyGLWindow::initialize()
 {
     this->_shaderProgram.initFromFiles("src/resources/shader/simple.vert", "src/resources/shader/simple.frag");
 
-    this->_shaderProgram.addUniform("model");
-    this->_shaderProgram.addUniform("view");
-    this->_shaderProgram.addUniform("projection");
+//    this->_shaderProgram.addUniform("model");
+//    this->_shaderProgram.addUniform("view");
+//    this->_shaderProgram.addUniform("projection");
+    this->_shaderProgram.addUniform("mvp");
 
     _cube = ColorCube(_width, _height);
 }
@@ -75,6 +76,7 @@ void MyGLWindow::draw()
     // position, size
     glViewport(0, 0, _width, _height);
     glEnable(GL_DEPTH_TEST); // enable depth testing
+    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 
     glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, -3.0f));
     glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0, 0.0, 0.0));
@@ -84,16 +86,19 @@ void MyGLWindow::draw()
     glm::vec3 eye = viewer->getViewPoint();
     glm::vec3 look = viewer->getViewCenter();
     glm::vec3 up = viewer->getUpVector();
-    glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
+    glm::mat4 view = glm::lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
 
-    glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
+    glm::mat4 projection = glm::perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
+
+    glm::mat4 mvp = projection * view /** model*/;
 
     // call shader program
     this->_shaderProgram.use();
     // draw
-    glUniformMatrix4fv(this->_shaderProgram.uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(this->_shaderProgram.uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(this->_shaderProgram.uniform("projection"), 1, GL_FALSE, glm::value_ptr(projection));
+//    glUniformMatrix4fv(this->_shaderProgram.uniform("model"), 1, GL_FALSE, glm::value_ptr(model));
+//    glUniformMatrix4fv(this->_shaderProgram.uniform("view"), 1, GL_FALSE, glm::value_ptr(view));
+//    glUniformMatrix4fv(this->_shaderProgram.uniform("projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(this->_shaderProgram.uniform("mvp"), 1, GL_FALSE, glm::value_ptr(mvp));
 
     if (_cube.has_value())
         _cube->draw();
