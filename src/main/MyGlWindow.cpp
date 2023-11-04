@@ -31,7 +31,7 @@ static glm::mat4 lookAt(glm::vec3 campos, glm::vec3 look, glm::vec3 up)
     return view;
 }
 
-static glm::mat4 perspective(float aspect, float fovy, float nearZ, float farZ)
+static glm::mat4 perspective(float fovy, float aspect, float nearZ, float farZ)
 {
     float f = 1.0f / (float) glm::tan(glm::radians(fovy * 0.5f));
 
@@ -78,19 +78,19 @@ void MyGLWindow::draw()
     glEnable(GL_DEPTH_TEST); // enable depth testing
     glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 
-    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, -3.0f));
-    glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(45.0f), glm::vec3(1.0, 0.0, 0.0));
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
+    glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0, 0.0, 0.0));
     glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
     glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
 
     glm::vec3 eye = viewer->getViewPoint();
     glm::vec3 look = viewer->getViewCenter();
     glm::vec3 up = viewer->getUpVector();
-    glm::mat4 view = glm::lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
+    glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
 
-    glm::mat4 projection = glm::perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
+    glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
 
-    glm::mat4 mvp = projection * view /** model*/;
+    glm::mat4 mvp = projection * view * model;
 
     // call shader program
     this->_shaderProgram.use();
