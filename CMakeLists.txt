@@ -30,5 +30,7 @@ add_executable(KMU lib/gl3w/gl3w.c
         src/main/MyGlWindow.cpp
         src/main/Viewer.cpp
         src/main/ColorCube.cpp
+        src/main/CheckeredFloor.cpp
+        include/CheckeredFloor.hpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)

@@ -7,6 +7,7 @@
 
 #include "Loader.hpp"
 #include "ColorCube.hpp"
+#include "CheckeredFloor.hpp"
 #include "Viewer.hpp"
 #include "GL/gl3w.h"
 #include <glfw/glfw3.h>
@@ -35,9 +36,11 @@ public:
     std::optional<Viewer> viewer;
 private:
     ShaderProgram _shaderProgram;
+    ShaderProgram _shaderProgramFloor;
     int _width;
     int _height;
     std::optional<ColorCube> _cube;
+    std::optional<CheckeredFloor> _floor;
 
     void initialize();
 };

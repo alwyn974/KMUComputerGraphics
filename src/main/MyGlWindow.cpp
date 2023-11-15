@@ -65,6 +65,7 @@ GLuint vaoHandle;
 void MyGLWindow::initialize()
 {
     this->_shaderProgram.initFromFiles("src/resources/shader/lightning/simple.vert", "src/resources/shader/lightning/simple.frag");
+    this->_shaderProgramFloor.initFromFiles("src/resources/shader/cube/simple.vert", "src/resources/shader/cube/simple.frag");
 
     //    this->_shaderProgram.addUniform("model");
     //    this->_shaderProgram.addUniform("view");
@@ -75,6 +76,8 @@ void MyGLWindow::initialize()
     this->_shaderProgram.addUniform("ModelViewMatrix"); // View*Model : mat4
     this->_shaderProgram.addUniform("NormalMatrix"); // Refer next slide : mat3
     this->_shaderProgram.addUniform("MVP"); // Projection * View * Model : mat4
+
+    this->_shaderProgramFloor.addUniform("MVP"); // Projection * View * Model : mat4
 
     std::vector<glm::vec3> normals(1732); //# of vertices 1732 -> # of normal 1732
     for (int i = 0; i < 1732; i++) {
@@ -108,7 +111,7 @@ void MyGLWindow::initialize()
     GLuint vboNormals;
     glGenBuffers(1, &vboNormals);
     glBindBuffer(GL_ARRAY_BUFFER, vboNormals);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(normals[0]) * normals.size(), normals.data(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(normals[0]) * normals.size(), normals.data(), GL_STATIC_DRAW);
     glVertexAttribPointer(
         1, // attribute
         3, // number of elements per vertex, here (x,y,z)
@@ -125,6 +128,8 @@ void MyGLWindow::initialize()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(nvertices), &nvertices, GL_STATIC_DRAW);
 
     glBindVertexArray(0);
+
+    _floor = CheckeredFloor(100, 10);
 
     //    _cube = ColorCube(_width, _height);
 }
@@ -155,6 +160,14 @@ void MyGLWindow::draw()
     glm::vec3 Ld(1, 1, 1); // Diffuse Light Color
     glm::mat4 inverseMVP = glm::inverse(mView);
     glm::mat3 normalMatrix = glm::mat3(glm::transpose(inverseMVP)); // normal matrix
+
+    this->_shaderProgramFloor.use();
+
+    glUniformMatrix4fv(this->_shaderProgramFloor.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+    if (_floor.has_value())
+        _floor->draw();
+
+    this->_shaderProgramFloor.disable();
 
     // call shader program
     this->_shaderProgram.use();
