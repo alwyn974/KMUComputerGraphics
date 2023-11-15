@@ -7,12 +7,12 @@ layout(location = 1) in vec3 color; // attribute number 1
 //uniform mat4 model;
 //uniform mat4 view;
 //uniform mat4 projection;
-uniform mat4 mvp;
+uniform mat4 MVP;
 out vec3 fcolor;
 
 void main() {
     fcolor = color;
     // gl_Position: clip coordinates
     // Make sure that gl_Position is a vec4
-    gl_Position = mvp * vec4(coord3d, 1.0);
+    gl_Position = MVP * vec4(coord3d, 1.0);
 }
