@@ -27,7 +27,7 @@ Viewer::Viewer(
     imagePlaneVertDir(0.0f, 0.0f, 0.0f),
     displayWidth(0),
     displayHeight(0),
-    lastDesired(0.0f, 0.0f, 0.0f)
+    lastDesired{0.0f, 0.0f, 0.0f}
 {
     this->upVector = glm::normalize(upVector);
 
