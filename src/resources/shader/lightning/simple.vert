@@ -18,9 +18,9 @@ out vec3 LightIntensity;
 void main()
 {
     vec3 N = normalize(NormalMatrix * vertexNormal);
-    //How to transform the VertexPosition into Eye Coordinate?
+    // How to transform the VertexPosition into Eye Coordinate?
     vec4 P = ModelViewMatrix * vertexPosition;
-    //Vector from Light Location to P
+    // Vector from Light Location to P
     vec3 L = normalize(LightLocation - P).xyz;
 
     LightIntensity = Kd * Ld * max(dot(N, L), 0.0f);
