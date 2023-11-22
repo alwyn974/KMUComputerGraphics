@@ -1,7 +1,6 @@
 #include "VBOTeapot.hpp"
 #include "Teapotdata.hpp"
 
-#include <gl/GL.h>
 #include <cstdio>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

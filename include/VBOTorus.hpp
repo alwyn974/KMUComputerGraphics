@@ -2,7 +2,6 @@
 #define VBOTORUS_H
 
 #include "GL/gl3w.h"
-#include "gl/GL.h"
 #include "glm/mat4x4.hpp"
 
 class VBOTorus {

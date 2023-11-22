@@ -4,9 +4,10 @@
 
 #include "MyGlWindow.hpp"
 #include <iostream>
-#include <format>
+//#include <format>
 #include <memory>
 
+#ifdef WIN32
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -16,6 +17,7 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #ifdef __cplusplus
 }
+#endif
 #endif
 
 std::unique_ptr<MyGLWindow> myGLWindow;
@@ -150,7 +152,7 @@ int main(int ac, char **av)
         frame++;
         double currentTime = glfwGetTime();
         if (currentTime - lastTime >= 1.0) {
-            std::cout << std::format("{} fps\n", frame);
+            std::cout << frame << " fps" << std::endl;
             frame = 0;
             lastTime = currentTime;
         }

@@ -2,7 +2,6 @@
 #define VBOTEAPOT_H
 
 #include "GL/gl3w.h"
-#include <gl/GL.h>
 #include "glm/glm.hpp"
 #include "Loader.hpp"
 
