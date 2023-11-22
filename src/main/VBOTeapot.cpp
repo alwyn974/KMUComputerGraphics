@@ -15,18 +15,50 @@ VBOTeapot::VBOTeapot(int grid, mat4 lidTransform)
     int verts = 32 * (grid + 1) * (grid + 1);
     faces = grid * grid * 32;
 
-    float *v = new float[verts * 3];  //vertex positions : vec3
-    float *n = new float[verts * 3];  //vertex normals : vec3
-    float *tc = new float[verts * 2]; //texture coordinates : vec2 (we don't use it at this point)
-    unsigned int *el = new unsigned int[faces * 6];  //indices for IBO
+    float *v = new float[verts * 3];  // vertex positions : vec3
+    float *n = new float[verts * 3];  // vertex normals : vec3
+    float *tc = new float[verts * 2]; // texture coordinates : vec2 (we don't use it at this point)
+    unsigned int *el = new unsigned int[faces * 6];  // indices for IBO
 
     generatePatches(v, n, tc, el, grid);
-
-
-
-
     //create vao, vbos, ibo here
+    glGenVertexArrays(1, &vaoHandle);
+    glBindVertexArray(vaoHandle);
 
+    GLuint vboVertices;
+    glGenBuffers(1, &vboVertices);
+    glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(v[0]) * verts * 3, v, GL_STATIC_DRAW);
+    glVertexAttribPointer(
+        0, // attribute
+        3, // number of elements per vertex, here (x,y,z)
+        GL_FLOAT, // type of each element
+        GL_FALSE, // take our values as-is
+        0, // stride
+        nullptr // array buffer offset
+    );
+    glEnableVertexAttribArray(0);
+
+    GLuint vboNormals;
+    glGenBuffers(1, &vboNormals);
+    glBindBuffer(GL_ARRAY_BUFFER, vboNormals);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(n[0]) * verts * 3, n, GL_STATIC_DRAW);
+    glVertexAttribPointer(
+        1, // attribute
+        3, // number of elements per vertex, here (x,y,z)
+        GL_FLOAT, // type of each element
+        GL_FALSE, // take our values as-is
+        0, // stride
+        nullptr // array buffer offset
+    );
+    glEnableVertexAttribArray(1);
+
+    GLuint iboElements;
+    glGenBuffers(1, &iboElements);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboElements);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(el[0]) * faces * 6, el, GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
 
     delete[] v;
     delete[] n;
@@ -69,7 +101,6 @@ void VBOTeapot::generatePatches(float *v, float *n, float *tc, unsigned int *el,
 
 void VBOTeapot::moveLid(int grid, float *v, mat4 lidTransform)
 {
-
     int start = 3 * 12 * (grid + 1) * (grid + 1);
     int end = 3 * 20 * (grid + 1) * (grid + 1);
 
@@ -243,4 +274,9 @@ vec3 VBOTeapot::evaluateNormal(int gridU, int gridV, float *B, float *dB, vec3 p
 
 void VBOTeapot::draw() const
 {
+    glBindVertexArray(vaoHandle);
+    int size;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    glDrawElements(GL_TRIANGLES, size / sizeof(unsigned int), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
 }

@@ -9,6 +9,8 @@
 #include "ColorCube.hpp"
 #include "CheckeredFloor.hpp"
 #include "Viewer.hpp"
+#include "VBOTeapot.hpp"
+#include "VBOTorus.hpp"
 #include "GL/gl3w.h"
 #include <glfw/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -37,10 +39,14 @@ public:
 private:
     ShaderProgram _shaderProgram;
     ShaderProgram _shaderProgramFloor;
+    ShaderProgram _shaderProgramTeapot;
+    ShaderProgram _shaderProgramTorus;
     int _width;
     int _height;
     std::optional<ColorCube> _cube;
     std::optional<CheckeredFloor> _floor;
+    std::optional<VBOTeapot> _teapot;
+    std::optional<VBOTorus> _torus;
 
     void initialize();
 };

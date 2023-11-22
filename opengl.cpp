@@ -7,6 +7,17 @@
 #include <format>
 #include <memory>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+__declspec(dllexport) DWORD NvOptimusEnablement = 1;
+__declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+
+#ifdef __cplusplus
+}
+#endif
+
 std::unique_ptr<MyGLWindow> myGLWindow;
 bool lButtonDown;
 bool rButtonDown;
@@ -114,6 +125,8 @@ int main(int ac, char **av)
         return 1;
     }
     std::cout << "OpenGL " << glGetString(GL_VERSION) << " " << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+    std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
+    std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
 //    glfwSwapInterval(1);
 
     glfwSetKeyCallback(window, key_callback);

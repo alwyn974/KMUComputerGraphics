@@ -1,6 +1,7 @@
 #ifndef VBOTEAPOT_H
 #define VBOTEAPOT_H
 
+#include "GL/gl3w.h"
 #include <gl/GL.h>
 #include "glm/glm.hpp"
 #include "Loader.hpp"
@@ -12,12 +13,12 @@ using glm::mat4;
 
 class VBOTeapot {
 public:
-    VBOTeapot(int grid, mat4 lidTransform);
+    explicit VBOTeapot(int grid, mat4 lidTransform);
 
     void draw() const;
 private:
-    unsigned int vaoHandle;
-    unsigned int faces;
+    GLuint vaoHandle;
+    GLuint faces;
 
     void generatePatches(float *v, float *n, float *tc, unsigned int *el, int grid);
 

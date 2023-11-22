@@ -1,12 +1,13 @@
 #ifndef VBOTORUS_H
 #define VBOTORUS_H
 
+#include "GL/gl3w.h"
 #include "gl/GL.h"
 #include "glm/mat4x4.hpp"
 
 class VBOTorus {
 public:
-    VBOTorus(float, float, int, int);
+    VBOTorus(float outerRadius, float innerRadius, int nsides, int nrings);
 
     virtual ~VBOTorus();
 
@@ -17,7 +18,7 @@ private:
 
     GLuint vbo_cube_vertices, vbo_cube_normals, ibo_cube_elements;
 
-    void generateVerts(float *, float *, unsigned int *, float, float);
+    void generateVerts(GLfloat *verts, GLfloat *norms, unsigned int *el, float outerRadius, float innerRadius);
 };
 
 #endif // VBOTORUS_H

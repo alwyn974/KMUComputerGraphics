@@ -1,7 +1,7 @@
 #version 450
 
-layout(location = 0) in vec4 vertexPosition; //attribute number 0
-layout(location = 1) in vec3 vertexNormal; //attribute number 1
+layout(location = 0) in vec4 vertexPosition; // attribute number 0
+layout(location = 1) in vec3 vertexNormal; // attribute number 1
 
 struct LightInfo {
     vec4 Position; // Light position in eye coords.
