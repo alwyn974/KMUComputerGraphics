@@ -189,6 +189,13 @@ void MyGLWindow::draw()
     //    glm::vec4 lightPos(50, 50, 50, 1); // light position
     //    glm::vec3 Kd(1, 1, 0); // Diffuse Object Color
     //    glm::vec3 Ld(1, 1, 1); // Diffuse Light Color
+    glm::vec3 eye = viewer->getViewPoint();
+    glm::vec3 look = viewer->getViewCenter();
+    glm::vec3 up = viewer->getUpVector();
+    glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
+
+    glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
+
     glm::vec4 lightPos(10, 10, 0, 1);
     glm::vec3 lightIntensity(0.9, 0.9, 0.9);
 
@@ -198,12 +205,6 @@ void MyGLWindow::draw()
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
         glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
 
-        glm::vec3 eye = viewer->getViewPoint();
-        glm::vec3 look = viewer->getViewCenter();
-        glm::vec3 up = viewer->getUpVector();
-        glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
-
-        glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
         glm::mat4 mView = view * model;
         glm::mat4 mvp = projection * view * model;
 
@@ -226,12 +227,6 @@ void MyGLWindow::draw()
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
         glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
 
-        glm::vec3 eye = viewer->getViewPoint();
-        glm::vec3 look = viewer->getViewCenter();
-        glm::vec3 up = viewer->getUpVector();
-        glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
-
-        glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
         glm::mat4 mView = view * model;
         glm::mat4 mvp = projection * view * model;
 
@@ -276,12 +271,6 @@ void MyGLWindow::draw()
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
         glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
 
-        glm::vec3 eye = viewer->getViewPoint();
-        glm::vec3 look = viewer->getViewCenter();
-        glm::vec3 up = viewer->getUpVector();
-        glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
-
-        glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
         glm::mat4 mView = view * model;
         glm::mat4 mvp = projection * view * model;
 
