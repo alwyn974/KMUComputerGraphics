@@ -7,7 +7,7 @@
 
 class VBOTorus {
 public:
-    VBOTorus(float outerRadius, float innerRadius, int nsides, int nrings);
+    explicit VBOTorus(float outerRadius, float innerRadius, int nsides, int nrings);
 
     virtual ~VBOTorus();
 
