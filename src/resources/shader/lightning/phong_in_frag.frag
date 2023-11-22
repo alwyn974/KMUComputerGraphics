@@ -10,7 +10,7 @@ uniform vec3 Kd;
 uniform vec3 Ks;
 uniform float shiness;
 
-out vec4 FragColor;
+layout(location = 0) out vec4 FragColor;
 
 void main()
 {

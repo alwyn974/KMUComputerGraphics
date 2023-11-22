@@ -243,7 +243,7 @@ void MyGLWindow::draw()
         glUniform3fv(this->_shaderProgramTeapot.uniform("Ks"), 1, glm::value_ptr(emerald.Ks));
         glUniform1fv(this->_shaderProgramTeapot.uniform("shiness"), 1, &emerald.shiness);
 
-        glUniformMatrix3fv(this->_shaderProgramTeapot.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
+        glUniformMatrix4fv(this->_shaderProgramTeapot.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
         glUniformMatrix3fv(this->_shaderProgramTeapot.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
         glUniformMatrix4fv(this->_shaderProgramTeapot.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 
@@ -286,7 +286,7 @@ void MyGLWindow::draw()
         glUniform3fv(this->_shaderProgramTorus.uniform("Ks"), 1, glm::value_ptr(ruby.Ks));
         glUniform1fv(this->_shaderProgramTorus.uniform("shiness"), 1, &ruby.shiness);
 
-        glUniformMatrix3fv(this->_shaderProgramTorus.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
+        glUniformMatrix4fv(this->_shaderProgramTorus.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
         glUniformMatrix3fv(this->_shaderProgramTorus.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
         glUniformMatrix4fv(this->_shaderProgramTorus.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 

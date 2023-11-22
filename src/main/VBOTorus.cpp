@@ -32,19 +32,19 @@ VBOTorus::VBOTorus(float outerRadius, float innerRadius, int nsides, int nrings)
 
     glGenBuffers(1, &vbo_cube_vertices);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_vertices);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(v[0]) * 3 * nVerts, v, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * nVerts, v, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
     glGenBuffers(1, &vbo_cube_normals);
     glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_normals);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(n[0]) * 3 * nVerts, n, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * nVerts, n, GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(1);
 
     glGenBuffers(1, &ibo_cube_elements);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(el[0]) * 6 * faces, el, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 6 * faces, el, GL_STATIC_DRAW);
 
     glBindVertexArray(0);
 
@@ -63,8 +63,8 @@ void VBOTorus::draw() const
     glBindVertexArray(vaoHandle); // select VAO
     int size;
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-    glDrawElements(GL_TRIANGLES, size * faces, GL_UNSIGNED_INT, nullptr);
-//    glDrawElements(GL_TRIANGLES, size / sizeof(glm::uint32), GL_UNSIGNED_INT, nullptr);
+//    glDrawElements(GL_TRIANGLES, size * faces, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_TRIANGLES, size / sizeof(glm::uint32), GL_UNSIGNED_INT, nullptr);
     glBindVertexArray(0);
 }
 
