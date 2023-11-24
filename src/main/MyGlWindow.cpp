@@ -70,13 +70,8 @@ void MyGLWindow::initialize()
     this->_shaderProgramFloor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
     this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
     this->_shaderProgramTorus.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
+    // TODO: use only one shader program for teapot and torus
 
-    //    this->_shaderProgram.addUniform("model");
-    //    this->_shaderProgram.addUniform("view");
-    //    this->_shaderProgram.addUniform("projection");
-    //    this->_shaderProgram.addUniform("LightLocation"); // Light Position : vec4
-    //    this->_shaderProgram.addUniform("Kd"); // Diffuse Object Color :vec3
-    //    this->_shaderProgram.addUniform("Ld"); // Diffuse Light Color : vec3
     const std::array<ShaderProgram *, 2> shaderPrograms = {&_shaderProgramTeapot, &_shaderProgramTorus};
     for (const auto &shaderProgram: shaderPrograms) {
         shaderProgram->addUniform("LightPosition");
@@ -113,14 +108,6 @@ void MyGLWindow::draw()
     glEnable(GL_DEPTH_TEST); // enable depth testing
     glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 
-    //    GLfloat shiness = 10;
-    //    glm::vec3 Ka(0.3, 0.3, 0.3);
-    //    glm::vec3 Kd(0.9, 0.9, 0.9);
-    //    glm::vec3 Ks(0.2, 0.2, 0.2);
-
-    //    glm::vec4 lightPos(50, 50, 50, 1); // light position
-    //    glm::vec3 Kd(1, 1, 0); // Diffuse Object Color
-    //    glm::vec3 Ld(1, 1, 1); // Diffuse Light Color
     glm::vec3 eye = viewer->getViewPoint();
     glm::vec3 look = viewer->getViewCenter();
     glm::vec3 up = viewer->getUpVector();
@@ -155,7 +142,7 @@ void MyGLWindow::draw()
     // call shader program
     {
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
-        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
+        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0, 0.0, 0.0));
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
         glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
 
@@ -192,31 +179,31 @@ void MyGLWindow::draw()
         this->_shaderProgramTeapot.disable();
     }
 
-//    {
-//        glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.5f, 0.0f));
-//        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
-//        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
-//        glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
-//
-//        glm::mat4 mView = view * model;
-//        glm::mat4 mvp = projection * view * model;
-//
-//        glm::mat4 inverseMVP = glm::inverse(mView);
-//        glm::mat3 normalMatrix = glm::mat3(glm::transpose(inverseMVP)); // normal matrix
-//
-//        this->_shaderProgramTorus.use();
-//
-//        glUniform4fv(this->_shaderProgramTorus.uniform("LightPosition"), 1, glm::value_ptr(lightPos));
-//        glUniform3fv(this->_shaderProgramTorus.uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
-//        MaterialColor::populateShaderProgram(_shaderProgramTorus, MaterialColor::ruby);
-//
-//        glUniformMatrix4fv(this->_shaderProgramTorus.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
-//        glUniformMatrix3fv(this->_shaderProgramTorus.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
-//        glUniformMatrix4fv(this->_shaderProgramTorus.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
-//
-//        if (_torus.has_value())
-//            _torus->draw();
-//
-//        this->_shaderProgramTorus.disable();
-//    }
+    /*{
+        glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.5f, 0.0f));
+        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
+        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
+        glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
+
+        glm::mat4 mView = view * model;
+        glm::mat4 mvp = projection * view * model;
+
+        glm::mat4 inverseMVP = glm::inverse(mView);
+        glm::mat3 normalMatrix = glm::mat3(glm::transpose(inverseMVP)); // normal matrix
+
+        this->_shaderProgramTorus.use();
+
+        glUniform4fv(this->_shaderProgramTorus.uniform("LightPosition"), 1, glm::value_ptr(lightPos));
+        glUniform3fv(this->_shaderProgramTorus.uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
+        MaterialColor::populateShaderProgram(_shaderProgramTorus, MaterialColor::ruby);
+
+        glUniformMatrix4fv(this->_shaderProgramTorus.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
+        glUniformMatrix3fv(this->_shaderProgramTorus.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+        glUniformMatrix4fv(this->_shaderProgramTorus.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+
+        if (_torus.has_value())
+            _torus->draw();
+
+        this->_shaderProgramTorus.disable();
+    }*/
 }
