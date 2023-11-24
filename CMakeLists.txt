@@ -51,3 +51,9 @@ add_executable(KMU lib/gl3w/gl3w.c
         src/main/object/Cow.cpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)
+
+# Set the startup project in Visual Studio
+if (MSVC)
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+    message(STATUS "Setting startup project to ${PROJECT_NAME}")
+endif (MSVC)
