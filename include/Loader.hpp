@@ -325,7 +325,7 @@ public:
     }
 
     // Method to returns the bound location of a named uniform
-    GLuint uniform(const std::string uniformName)
+    GLint uniform(const std::string &uniformName)
     {
         // Note: You could do this method with the single line:
         //

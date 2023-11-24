@@ -23,16 +23,31 @@ FetchContent_GetProperties(glm)
 
 find_package(OpenGL REQUIRED)
 
-include_directories(include lib/gl3w/include)
+include_directories(
+        include
+        lib/gl3w/include
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/external/imgui"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/external/imgui/misc/cpp"
+)
 add_executable(KMU lib/gl3w/gl3w.c
+        src/external/imgui/imgui.cpp
+        src/external/imgui/imgui_draw.cpp
+        src/external/imgui/imgui_tables.cpp
+        src/external/imgui/imgui_widgets.cpp
+        src/external/imgui/misc/cpp/imgui_stdlib.cpp
+        src/external/imgui/imgui_demo.cpp
         #main.cpp
         opengl.cpp
         src/main/MyGlWindow.cpp
         src/main/Viewer.cpp
-        src/main/ColorCube.cpp
-        src/main/CheckeredFloor.cpp
+        src/main/object/ColorCube.cpp
+        src/main/object/CheckeredFloor.cpp
         src/main/Global.cpp
-        src/main/VBOTeapot.cpp
-        src/main/VBOTorus.cpp
+        src/main/object/VBOTeapot.cpp
+        src/main/object/VBOTorus.cpp
+        src/main/object/Bunny.cpp
+        src/main/object/Sphere.cpp
+        src/main/MaterialColor.cpp
+        src/main/object/Cow.cpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)

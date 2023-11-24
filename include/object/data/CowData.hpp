@@ -1,6 +1,6 @@
 #pragma once
 
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 
 uint32_t nvertices[9468] = {
     2, 0, 3, 1, 3, 0, 4, 2,

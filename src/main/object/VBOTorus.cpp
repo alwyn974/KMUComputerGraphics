@@ -1,11 +1,11 @@
-#include "VBOTorus.hpp"
+#include "object/VBOTorus.hpp"
 
 #include "GL/gl3w.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/constants.hpp>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_inverse.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/constants.hpp"
 
 #include <cstdio>
 #include <cmath>
@@ -60,7 +60,7 @@ VBOTorus::~VBOTorus()
 
 void VBOTorus::draw() const
 {
-    glBindVertexArray(vaoHandle); // select VAO
+    glBindVertexArray(vaoHandle); // select vaoHandle
     int size;
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 //    glDrawElements(GL_TRIANGLES, size * faces, GL_UNSIGNED_INT, nullptr);

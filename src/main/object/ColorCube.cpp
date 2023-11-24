@@ -2,7 +2,7 @@
 // Created by alwyn on 01/11/2023.
 //
 
-#include "ColorCube.hpp"
+#include "object/ColorCube.hpp"
 
 ColorCube::ColorCube(int width, int height) : vaoHandle(0), vboCubeVertices(0), vboCubeColors(0), iboCubeElements(0)
 {
@@ -47,7 +47,7 @@ ColorCube::ColorCube(int width, int height) : vaoHandle(0), vboCubeVertices(0), 
 
 void ColorCube::draw() const
 {
-    glBindVertexArray(vaoHandle); // select VAO
+    glBindVertexArray(vaoHandle); // select vaoHandle
     glDrawArrays(GL_TRIANGLES, 0, 8); // first: primitive type, second: start index, third: number of vertices
     int size = 0;
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
@@ -56,9 +56,9 @@ void ColorCube::draw() const
 
 void ColorCube::setup()
 {
-    // Create VAO vertex position
+    // Create vaoHandle vertex position
     glGenVertexArrays(1, &vaoHandle);
-    glBindVertexArray(vaoHandle); // select VAO
+    glBindVertexArray(vaoHandle); // select vaoHandle
     // Create VBO for vertex position
     glGenBuffers(1, &vboCubeVertices);
     glBindBuffer(GL_ARRAY_BUFFER, vboCubeVertices); // select VBO
@@ -92,5 +92,5 @@ void ColorCube::setup()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboCubeElements);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeElements[0]) * cubeElements.size(), cubeElements.data(), GL_STATIC_DRAW);
 
-    glBindVertexArray(0); // close the current VAO
+    glBindVertexArray(0); // close the current vaoHandle
 }

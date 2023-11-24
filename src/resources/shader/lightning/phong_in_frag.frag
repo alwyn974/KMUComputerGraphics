@@ -8,7 +8,7 @@ uniform vec3 LightIntensity; // Ia=Id=Is, LightColor
 uniform vec3 Ka;
 uniform vec3 Kd;
 uniform vec3 Ks;
-uniform float shiness;
+uniform float Shiness;
 
 layout(location = 0) out vec4 FragColor;
 
@@ -22,8 +22,8 @@ void main()
 
     vec3 ambient = LightIntensity * Ka;
     vec3 diffuse = LightIntensity * Kd * max(dot(N, L), 0.0);
-//    vec3 specular = Ks * LightIntensity * pow(max(dot(R, V), 0.0), shiness);
-    vec3 specular = LightIntensity * Ks * pow(max(dot(H, N), 0.0), shiness); // Use the half-way vector here
+//    vec3 specular = Ks * LightIntensity * pow(max(dot(R, V), 0.0), Shiness);
+    vec3 specular = LightIntensity * Ks * pow(max(dot(H, N), 0.0), Shiness); // Use the half-way vector here
 
     vec3 color = ambient + diffuse + specular;
 

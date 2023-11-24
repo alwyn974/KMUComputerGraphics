@@ -2,7 +2,7 @@
 // Created by alwyn on 15/11/2023.
 //
 
-#include "CheckeredFloor.hpp"
+#include "object/CheckeredFloor.hpp"
 
 CheckeredFloor::CheckeredFloor(int size, int nsquare) : _size(size), _nsquare(nsquare), vao(0), vboVertices(0), vboColors(0) {
     generate();
@@ -43,7 +43,7 @@ void CheckeredFloor::generate()
         }
     }
 
-    // Generate and bind VAO
+    // Generate and bind vaoHandle
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -61,7 +61,7 @@ void CheckeredFloor::generate()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(1);
 
-    // Unbind VAO
+    // Unbind vaoHandle
     glBindVertexArray(0);
 }
 

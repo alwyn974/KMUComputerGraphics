@@ -1,24 +1,19 @@
-#include "Sphere.hpp"
+#include "object/Sphere.hpp"
 
-#include <glm//gtc/constants.hpp>
-#include <glm/vec3.hpp>
-#include <glm/mat3x3.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "glm/gtc/constants.hpp"
+#include "glm/vec3.hpp"
+#include "glm/mat3x3.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-
-Sphere::Sphere()
-{
-}
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_inverse.hpp"
 
 Sphere::~Sphere()
 {
 }
 
-Sphere::Sphere(float rad, GLuint sl, GLuint st) : radius(rad), slices(sl), stacks(st)
+Sphere::Sphere(float rad, GLuint slices, GLuint stacks) : radius(rad), slices(slices), stacks(stacks)
 {
-
     nVerts = (slices + 1) * (stacks + 1);
     elements = (slices * 2 * (stacks - 1)) * 3;
 
@@ -33,10 +28,27 @@ Sphere::Sphere(float rad, GLuint sl, GLuint st) : radius(rad), slices(sl), stack
 
     // Generate the vertex data
     generateVerts(v, n, tex, el);
-
-
     //create vao, vbo and ibo here... (We didn't use std::vector here...)
+    glGenVertexArrays(1, &vaoHandle);
+    glBindVertexArray(vaoHandle);
 
+    glGenBuffers(1, &vboPosition);
+    glBindBuffer(GL_ARRAY_BUFFER, vboPosition);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * nVerts, v, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &vboNormal);
+    glBindBuffer(GL_ARRAY_BUFFER, vboNormal);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * nVerts, n, GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(1);
+
+    glGenBuffers(1, &iboElements);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboElements);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * elements, el, GL_STATIC_DRAW);
+
+    glBindVertexArray(0);
 
     delete[] v;
     delete[] n;
@@ -46,9 +58,14 @@ Sphere::Sphere(float rad, GLuint sl, GLuint st) : radius(rad), slices(sl), stack
 
 void Sphere::draw()
 {
+    glBindVertexArray(vaoHandle);
+    int size;
+    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+    glDrawElements(GL_TRIANGLES, size / sizeof(unsigned int), GL_UNSIGNED_INT, nullptr);
+    glBindVertexArray(0);
 }
 
-void Sphere::generateVerts(float *verts, float *norms, float *tex,unsigned int *el)
+void Sphere::generateVerts(float *verts, float *norms, float *tex, GLuint *el)
 {
     // Generate positions and normals
     GLfloat theta, phi;
@@ -106,10 +123,5 @@ void Sphere::generateVerts(float *verts, float *norms, float *tex,unsigned int *
             }
         }
     }
-}
-
-int Sphere::getVertexArrayHandle()
-{
-    return this->VAO;
 }
 

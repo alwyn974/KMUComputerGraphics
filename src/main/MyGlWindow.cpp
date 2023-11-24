@@ -4,29 +4,12 @@
 
 #include <array>
 #include "MyGlWindow.hpp"
-#include "Cow.hpp"
+#include "imgui.h"
+#include "imgui_stdlib.h"
 
 static float DEFAULT_VIEW_POINT[3] = {5, 5, 5};
 static float DEFAULT_VIEW_CENTER[3] = {0, 0, 0};
 static float DEFAULT_UP_VECTOR[3] = {0, 1, 0};
-struct Color {
-    GLfloat shiness;
-    glm::vec3 Ka;
-    glm::vec3 Kd;
-    glm::vec3 Ks;
-};
-static Color emerald = {
-    76.8,
-    glm::vec3(0.0215, 0.1745, 0.0215),
-    glm::vec3(0.07568, 0.61424, 0.07568),
-    glm::vec3(0.633, 0.727811, 0.633)
-};
-static Color ruby = {
-    76.8,
-    glm::vec3(0.1745, 0.01175, 0.01175),
-    glm::vec3(0.61424, 0.04136, 0.04136),
-    glm::vec3(0.727811, 0.626959, 0.626959)
-};
 
 // there is a glm::lookAt function also
 static glm::mat4 lookAt(glm::vec3 campos, glm::vec3 look, glm::vec3 up)
@@ -84,7 +67,7 @@ GLuint vaoHandle;
 void MyGLWindow::initialize()
 {
     //    this->_shaderProgram.initFromFiles("src/resources/shader/lightning/phong.vert", "src/resources/shader/lightning/phong.frag");
-    this->_shaderProgramFloor.initFromFiles("src/resources/shader/cube/simple.vert", "src/resources/shader/cube/simple.frag");
+    this->_shaderProgramFloor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
     this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
     this->_shaderProgramTorus.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
 
@@ -101,7 +84,7 @@ void MyGLWindow::initialize()
         shaderProgram->addUniform("Ka");
         shaderProgram->addUniform("Kd");
         shaderProgram->addUniform("Ks");
-        shaderProgram->addUniform("shiness");
+        shaderProgram->addUniform("Shiness");
 
         shaderProgram->addUniform("ModelViewMatrix"); // View*Model : mat4
         shaderProgram->addUniform("NormalMatrix"); // Refer next slide : mat3
@@ -110,66 +93,15 @@ void MyGLWindow::initialize()
 
     this->_shaderProgramFloor.addUniform("MVP"); // Projection * View * Model : mat4
 
-    /*std::vector<glm::vec3> normals(1732); //# of vertices 1732 -> # of normal 1732
-    std::vector<int> meanNormals(1732); // counter for mean normal
-    for (int i = 0; i < 1732; i++) {
-        const glm::vec3 &v0 = vertices[nvertices[i * 3]]; // 1st vertex
-        const glm::vec3 &v1 = vertices[nvertices[i * 3 + 1]]; // 2nd vertex
-        const glm::vec3 &v2 = vertices[nvertices[i * 3 + 2]]; // 3rd vertex
-        glm::vec3 n = glm::cross((v1 - v0), (v2 - v0)); // Cross product
-        n = glm::normalize(n);
-        normals[nvertices[i * 3]] += n; //Set the same normal to each vertex
-        meanNormals[nvertices[i * 3]]++;
-        normals[nvertices[i * 3 + 1]] += n;
-        meanNormals[nvertices[i * 3 + 1]]++;
-        normals[nvertices[i * 3 + 2]] += n;
-        meanNormals[nvertices[i * 3 + 2]]++;
-    }
-    for (const auto &item: meanNormals)
-        normals[item] /= item;
-
-    glGenVertexArrays(1, &vaoHandle);
-    glBindVertexArray(vaoHandle);
-
-    GLuint vboVertices;
-    glGenBuffers(1, &vboVertices);
-    glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), &vertices, GL_STATIC_DRAW);
-    glVertexAttribPointer(
-        0, // attribute
-        3, // number of elements per vertex, here (x,y,z)
-        GL_FLOAT, // type of each element
-        GL_FALSE, // take our values as-is
-        0, // stride
-        nullptr // array buffer offset
-    );
-    glEnableVertexAttribArray(0);
-
-    GLuint vboNormals;
-    glGenBuffers(1, &vboNormals);
-    glBindBuffer(GL_ARRAY_BUFFER, vboNormals);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(normals[0]) * normals.size(), normals.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(
-        1, // attribute
-        3, // number of elements per vertex, here (x,y,z)
-        GL_FLOAT, // type of each element
-        GL_FALSE, // take our values as-is
-        0, // stride
-        nullptr // array buffer offset
-    );
-    glEnableVertexAttribArray(1);
-
-    GLuint iboElements;
-    glGenBuffers(1, &iboElements);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboElements);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(nvertices), &nvertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(0);*/
-
     _floor = CheckeredFloor(100, 10);
 
-    _teapot = VBOTeapot(64, glm::mat4(1.0f));
-    _torus = VBOTorus(1.5f, 0.75f, 50, 50);
+//    _teapot = VBOTeapot(64, glm::mat4(1.0f));
+//    _torus = VBOTorus(1.5f, 0.75f, 50, 50);
+
+    _bunny = Bunny();
+
+//    _cow = Cow();
+//    _sphere = Sphere(1, 50, 50);
 
     //    _cube = ColorCube(_width, _height);
 }
@@ -179,7 +111,7 @@ void MyGLWindow::draw()
     // position, size
     glViewport(0, 0, _width, _height);
     glEnable(GL_DEPTH_TEST); // enable depth testing
-//    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+    glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 
     //    GLfloat shiness = 10;
     //    glm::vec3 Ka(0.3, 0.3, 0.3);
@@ -238,10 +170,7 @@ void MyGLWindow::draw()
 
         glUniform4fv(this->_shaderProgramTeapot.uniform("LightPosition"), 1, glm::value_ptr(lightPos));
         glUniform3fv(this->_shaderProgramTeapot.uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
-        glUniform3fv(this->_shaderProgramTeapot.uniform("Ka"), 1, glm::value_ptr(emerald.Ka));
-        glUniform3fv(this->_shaderProgramTeapot.uniform("Kd"), 1, glm::value_ptr(emerald.Kd));
-        glUniform3fv(this->_shaderProgramTeapot.uniform("Ks"), 1, glm::value_ptr(emerald.Ks));
-        glUniform1fv(this->_shaderProgramTeapot.uniform("shiness"), 1, &emerald.shiness);
+        MaterialColor::populateShaderProgram(_shaderProgramTeapot, MaterialColor::emerald);
 
         glUniformMatrix4fv(this->_shaderProgramTeapot.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
         glUniformMatrix3fv(this->_shaderProgramTeapot.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
@@ -250,49 +179,44 @@ void MyGLWindow::draw()
         //    if (_cube.has_value())
         //        _cube->draw();
 
-        if (_teapot.has_value())
-            _teapot->draw();
+//        if (_teapot.has_value())
+//            _teapot->draw();
 
-        // draw cow - start
-        /*glBindVertexArray(vaoHandle);
-        int size;
-        glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-        glDrawElements(GL_TRIANGLES, size / sizeof(glm::uint32), GL_UNSIGNED_INT, nullptr);
-        glBindVertexArray(0);*/
-        // draw cow - end
+        if (_bunny.has_value())
+            _bunny->draw();
+
+//        if (_sphere.has_value())
+//            _sphere->draw();
 
         // unbind shader program
         this->_shaderProgramTeapot.disable();
     }
 
-    {
-        glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.5f, 0.0f));
-        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
-        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
-        glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
-
-        glm::mat4 mView = view * model;
-        glm::mat4 mvp = projection * view * model;
-
-        glm::mat4 inverseMVP = glm::inverse(mView);
-        glm::mat3 normalMatrix = glm::mat3(glm::transpose(inverseMVP)); // normal matrix
-
-        this->_shaderProgramTorus.use();
-
-        glUniform4fv(this->_shaderProgramTorus.uniform("LightPosition"), 1, glm::value_ptr(lightPos));
-        glUniform3fv(this->_shaderProgramTorus.uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
-        glUniform3fv(this->_shaderProgramTorus.uniform("Ka"), 1, glm::value_ptr(ruby.Ka));
-        glUniform3fv(this->_shaderProgramTorus.uniform("Kd"), 1, glm::value_ptr(ruby.Kd));
-        glUniform3fv(this->_shaderProgramTorus.uniform("Ks"), 1, glm::value_ptr(ruby.Ks));
-        glUniform1fv(this->_shaderProgramTorus.uniform("shiness"), 1, &ruby.shiness);
-
-        glUniformMatrix4fv(this->_shaderProgramTorus.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
-        glUniformMatrix3fv(this->_shaderProgramTorus.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
-        glUniformMatrix4fv(this->_shaderProgramTorus.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
-
-        if (_torus.has_value())
-            _torus->draw();
-
-        this->_shaderProgramTorus.disable();
-    }
+//    {
+//        glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.5f, 0.0f));
+//        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(-90.0f), glm::vec3(1.0, 0.0, 0.0));
+//        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
+//        glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
+//
+//        glm::mat4 mView = view * model;
+//        glm::mat4 mvp = projection * view * model;
+//
+//        glm::mat4 inverseMVP = glm::inverse(mView);
+//        glm::mat3 normalMatrix = glm::mat3(glm::transpose(inverseMVP)); // normal matrix
+//
+//        this->_shaderProgramTorus.use();
+//
+//        glUniform4fv(this->_shaderProgramTorus.uniform("LightPosition"), 1, glm::value_ptr(lightPos));
+//        glUniform3fv(this->_shaderProgramTorus.uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
+//        MaterialColor::populateShaderProgram(_shaderProgramTorus, MaterialColor::ruby);
+//
+//        glUniformMatrix4fv(this->_shaderProgramTorus.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
+//        glUniformMatrix3fv(this->_shaderProgramTorus.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+//        glUniformMatrix4fv(this->_shaderProgramTorus.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+//
+//        if (_torus.has_value())
+//            _torus->draw();
+//
+//        this->_shaderProgramTorus.disable();
+//    }
 }

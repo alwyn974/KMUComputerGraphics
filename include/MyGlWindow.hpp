@@ -6,11 +6,15 @@
 #define KMU_MYGLWINDOW_HPP
 
 #include "Loader.hpp"
-#include "ColorCube.hpp"
-#include "CheckeredFloor.hpp"
 #include "Viewer.hpp"
-#include "VBOTeapot.hpp"
-#include "VBOTorus.hpp"
+#include "MaterialColor.hpp"
+#include "object/ColorCube.hpp"
+#include "object/CheckeredFloor.hpp"
+#include "object/Cow.hpp"
+#include "object/Sphere.hpp"
+#include "object/VBOTeapot.hpp"
+#include "object/VBOTorus.hpp"
+#include "object/Bunny.hpp"
 #include "GL/gl3w.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -45,8 +49,11 @@ private:
     int _height;
     std::optional<ColorCube> _cube;
     std::optional<CheckeredFloor> _floor;
+    std::optional<Cow> _cow;
+    std::optional<Sphere> _sphere;
     std::optional<VBOTeapot> _teapot;
     std::optional<VBOTorus> _torus;
+    std::optional<Bunny> _bunny;
 
     void initialize();
 };

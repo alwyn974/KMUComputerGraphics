@@ -1,12 +1,12 @@
-#include "VBOTeapot.hpp"
-#include "Teapotdata.hpp"
+#include "object/VBOTeapot.hpp"
+#include "object/data/Teapotdata.hpp"
 
 #include <cstdio>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/constants.hpp>
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/matrix_inverse.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtc/constants.hpp"
 
 //set grid = 64, lidTransform = 4x4 identity matrix
 VBOTeapot::VBOTeapot(int grid, mat4 lidTransform)
@@ -17,7 +17,7 @@ VBOTeapot::VBOTeapot(int grid, mat4 lidTransform)
     float *v = new float[verts * 3];  // vertex positions : vec3
     float *n = new float[verts * 3];  // vertex normals : vec3
     float *tc = new float[verts * 2]; // texture coordinates : vec2 (we don't use it at this point)
-    unsigned int *el = new unsigned int[faces * 6];  // indices for IBO
+    unsigned int *el = new unsigned int[faces * 6];  // indices for iboElements
 
     generatePatches(v, n, tc, el, grid);
     //create vao, vbos, ibo here
