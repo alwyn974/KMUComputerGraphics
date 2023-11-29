@@ -55,12 +55,12 @@ VBOTorus::VBOTorus(float outerRadius, float innerRadius, int nsides, int nrings)
 
 VBOTorus::~VBOTorus()
 {
-    //    delete shaderProgram;
+    //    delete _shaderProgram;
 }
 
 void VBOTorus::draw() const
 {
-    glBindVertexArray(vaoHandle); // select vaoHandle
+    glBindVertexArray(vaoHandle); // select _vaoHandle
     int size;
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 //    glDrawElements(GL_TRIANGLES, size * faces, GL_UNSIGNED_INT, nullptr);

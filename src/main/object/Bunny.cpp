@@ -5,14 +5,14 @@
 #include "object/Bunny.hpp"
 #include "object/data/BunnyData.hpp"
 
-Bunny::Bunny() : vaoHandle(0)
+Bunny::Bunny() : _vaoHandle(0)
 {
     initialize();
 }
 
 void Bunny::draw(const MaterialColor &materialColor) const
 {
-    glBindVertexArray(vaoHandle);
+    glBindVertexArray(_vaoHandle);
     int size;
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
     glDrawElements(GL_TRIANGLES, size / sizeof(glm::uint32), GL_UNSIGNED_INT, nullptr);
@@ -21,8 +21,8 @@ void Bunny::draw(const MaterialColor &materialColor) const
 
 void Bunny::initialize()
 {
-    glGenVertexArrays(1, &vaoHandle);
-    glBindVertexArray(vaoHandle);
+    glGenVertexArrays(1, &_vaoHandle);
+    glBindVertexArray(_vaoHandle);
 
     GLuint vboVertices;
     glGenBuffers(1, &vboVertices);

@@ -15,6 +15,7 @@
 #include "object/VBOTeapot.hpp"
 #include "object/VBOTorus.hpp"
 #include "object/Bunny.hpp"
+#include "object/BunnyTextured.hpp"
 #include "GL/gl3w.h"
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -45,6 +46,7 @@ private:
     ShaderProgram _shaderProgramFloor;
     ShaderProgram _shaderProgramTeapot;
     ShaderProgram _shaderProgramTorus;
+    ShaderProgram _shaderProgramBunnyTextured;
     int _width;
     int _height;
     std::optional<ColorCube> _cube;
@@ -54,6 +56,7 @@ private:
     std::optional<VBOTeapot> _teapot;
     std::optional<VBOTorus> _torus;
     std::optional<Bunny> _bunny;
+    std::optional<BunnyTextured> _bunnyTextured;
 
     void initialize();
 };

@@ -43,7 +43,7 @@ void CheckeredFloor::generate()
         }
     }
 
-    // Generate and bind vaoHandle
+    // Generate and bind _vaoHandle
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -61,7 +61,7 @@ void CheckeredFloor::generate()
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(1);
 
-    // Unbind vaoHandle
+    // Unbind _vaoHandle
     glBindVertexArray(0);
 }
 

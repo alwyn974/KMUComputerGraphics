@@ -16,8 +16,7 @@ public:
 
 private:
     void initialize();
-    GLuint vaoHandle;
-    ShaderProgram shaderProgram;
+    GLuint _vaoHandle;
 };
 
 #endif //KMU_BUNNY_HPP

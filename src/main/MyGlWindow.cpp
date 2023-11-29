@@ -62,17 +62,16 @@ MyGLWindow::MyGLWindow(int width, int height)
     this->initialize();
 }
 
-GLuint vaoHandle;
-
 void MyGLWindow::initialize()
 {
     //    this->_shaderProgram.initFromFiles("src/resources/shader/lightning/phong.vert", "src/resources/shader/lightning/phong.frag");
     this->_shaderProgramFloor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
-    this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
-    this->_shaderProgramTorus.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
+    this->_shaderProgramBunnyTextured.initFromFiles("src/resources/shader/texture/simple.vert", "src/resources/shader/texture/simple.frag");
+//    this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
+//    this->_shaderProgramTorus.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
     // TODO: use only one shader program for teapot and torus
 
-    const std::array<ShaderProgram *, 2> shaderPrograms = {&_shaderProgramTeapot, &_shaderProgramTorus};
+    /*const std::array<ShaderProgram *, 2> shaderPrograms = {&_shaderProgramTeapot, &_shaderProgramTorus};
     for (const auto &shaderProgram: shaderPrograms) {
         shaderProgram->addUniform("LightPosition");
         shaderProgram->addUniform("LightIntensity");
@@ -84,7 +83,18 @@ void MyGLWindow::initialize()
         shaderProgram->addUniform("ModelViewMatrix"); // View*Model : mat4
         shaderProgram->addUniform("NormalMatrix"); // Refer next slide : mat3
         shaderProgram->addUniform("MVP"); // Projection * View * Model : mat4
-    }
+    }*/
+    this->_shaderProgramBunnyTextured.addUniform("LightPosition");
+    this->_shaderProgramBunnyTextured.addUniform("LightIntensity");
+    this->_shaderProgramBunnyTextured.addUniform("Ka");
+    this->_shaderProgramBunnyTextured.addUniform("Kd");
+    this->_shaderProgramBunnyTextured.addUniform("Ks");
+    this->_shaderProgramBunnyTextured.addUniform("Shiness");
+
+    this->_shaderProgramBunnyTextured.addUniform("ModelViewMatrix"); // View*Model : mat4
+    this->_shaderProgramBunnyTextured.addUniform("NormalMatrix"); // Refer next slide : mat3
+    this->_shaderProgramBunnyTextured.addUniform("MVP"); // Projection * View * Model : mat4
+    this->_shaderProgramBunnyTextured.addUniform("Tex1");
 
     this->_shaderProgramFloor.addUniform("MVP"); // Projection * View * Model : mat4
 
@@ -93,7 +103,9 @@ void MyGLWindow::initialize()
 //    _teapot = VBOTeapot(64, glm::mat4(1.0f));
 //    _torus = VBOTorus(1.5f, 0.75f, 50, 50);
 
-    _bunny = Bunny();
+//    _bunny = Bunny();
+
+    _bunnyTextured = BunnyTextured("src/resources/textures/bunny.png");
 
 //    _cow = Cow();
 //    _sphere = Sphere(1, 50, 50);
@@ -114,9 +126,6 @@ void MyGLWindow::draw()
     glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
 
     glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
-
-    glm::vec4 lightPos(10, 10, 0, 1);
-    glm::vec3 lightIntensity(0.9, 0.9, 0.9);
 
     {
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
@@ -139,6 +148,8 @@ void MyGLWindow::draw()
         this->_shaderProgramFloor.disable();
     }
 
+    glm::vec4 lightPos(10, 10, 0, 1);
+    glm::vec3 lightIntensity(1, 1, 1);
     // call shader program
     {
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
@@ -152,16 +163,25 @@ void MyGLWindow::draw()
         glm::mat4 inverseMVP = glm::inverse(mView);
         glm::mat3 normalMatrix = glm::mat3(glm::transpose(inverseMVP)); // normal matrix
 
-        this->_shaderProgramTeapot.use();
+        this->_shaderProgramBunnyTextured.use();
         // draw
 
-        glUniform4fv(this->_shaderProgramTeapot.uniform("LightPosition"), 1, glm::value_ptr(lightPos));
-        glUniform3fv(this->_shaderProgramTeapot.uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
-        MaterialColor::populateShaderProgram(_shaderProgramTeapot, MaterialColor::emerald);
+        glUniform4fv(this->_shaderProgramBunnyTextured.uniform("LightPosition"), 1, glm::value_ptr(lightPos));
+        glUniform3fv(this->_shaderProgramBunnyTextured.uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
+        const MaterialColor color = {
+            .ka = glm::vec3(0.3, 0.3, 0.3),
+            .kd = glm::vec3(1, 1, 1),
+            .ks = glm::vec3(0.3, 0.3, 0.3),
+            .shiness = 10
+        };
+        MaterialColor::populateShaderProgram(_shaderProgramBunnyTextured, color);
 
-        glUniformMatrix4fv(this->_shaderProgramTeapot.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
-        glUniformMatrix3fv(this->_shaderProgramTeapot.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
-        glUniformMatrix4fv(this->_shaderProgramTeapot.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+        glUniformMatrix4fv(this->_shaderProgramBunnyTextured.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
+        glUniformMatrix3fv(this->_shaderProgramBunnyTextured.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+        glUniformMatrix4fv(this->_shaderProgramBunnyTextured.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+
+        if (_bunnyTextured.has_value())
+            _bunnyTextured->draw();
 
         //    if (_cube.has_value())
         //        _cube->draw();
@@ -169,14 +189,14 @@ void MyGLWindow::draw()
 //        if (_teapot.has_value())
 //            _teapot->draw();
 
-        if (_bunny.has_value())
-            _bunny->draw();
+//        if (_bunny.has_value())
+//            _bunny->draw();
 
 //        if (_sphere.has_value())
 //            _sphere->draw();
 
         // unbind shader program
-        this->_shaderProgramTeapot.disable();
+        this->_shaderProgramBunnyTextured.disable();
     }
 
     /*{
