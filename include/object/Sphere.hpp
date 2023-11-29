@@ -12,8 +12,7 @@ class Sphere {
 public:
     explicit Sphere(float rad, GLuint slices, GLuint stacks);
 
-    ~Sphere();
-    void draw();
+    virtual void draw();
 
     int getVertexArrayHandle() const
     {
@@ -22,7 +21,7 @@ public:
 
     GLuint vaoHandle, vboPosition, vboNormal, iboElements;
 
-private:
+protected:
     GLuint nVerts, elements;
     float radius;
     GLuint slices, stacks;

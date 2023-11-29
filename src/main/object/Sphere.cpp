@@ -8,10 +8,6 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/matrix_inverse.hpp"
 
-Sphere::~Sphere()
-{
-}
-
 Sphere::Sphere(float rad, GLuint slices, GLuint stacks) : radius(rad), slices(slices), stacks(stacks)
 {
     nVerts = (slices + 1) * (stacks + 1);
@@ -22,7 +18,7 @@ Sphere::Sphere(float rad, GLuint slices, GLuint stacks) : radius(rad), slices(sl
     // Normals
     float *n = new float[3 * nVerts];
     // Tex coords
-    float *tex = new float[2 * nVerts];    //we don't use it now
+    float *tex = new float[2 * nVerts];
     // Index
     unsigned int *el = new unsigned int[elements];  //index
 
@@ -43,6 +39,13 @@ Sphere::Sphere(float rad, GLuint slices, GLuint stacks) : radius(rad), slices(sl
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 3 * nVerts, n, GL_STATIC_DRAW);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(1);
+
+    GLuint vboTexCoords;
+    glGenBuffers(1, &vboTexCoords);
+    glBindBuffer(GL_ARRAY_BUFFER, vboTexCoords);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 2 * nVerts, tex, GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(2);
 
     glGenBuffers(1, &iboElements);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboElements);

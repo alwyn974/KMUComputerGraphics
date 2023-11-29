@@ -4,10 +4,8 @@
 
 #include <array>
 #include "MyGlWindow.hpp"
-#include "imgui.h"
-#include "imgui_stdlib.h"
 
-static float DEFAULT_VIEW_POINT[3] = {150, 150, 150};
+static float DEFAULT_VIEW_POINT[3] = {7, 7, 7};
 static float DEFAULT_VIEW_CENTER[3] = {0, 0, 0};
 static float DEFAULT_UP_VECTOR[3] = {0, 1, 0};
 
@@ -98,7 +96,7 @@ void MyGLWindow::initialize()
 
     this->_shaderProgramFloor.addUniform("MVP"); // Projection * View * Model : mat4
 
-    _floor = CheckeredFloor(500, 10);
+    _floor = CheckeredFloor(100, 10);
 
 //    _teapot = VBOTeapot(64, glm::mat4(1.0f));
 //    _torus = VBOTorus(1.5f, 0.75f, 50, 50);
@@ -106,6 +104,7 @@ void MyGLWindow::initialize()
 //    _bunny = Bunny();
 
     _bunnyTextured = BunnyTextured("src/resources/textures/bunny.png");
+    _earth = Earth(1, 50, 50, "src/resources/textures/earth.jpg");
 
 //    _cow = Cow();
 //    _sphere = Sphere(1, 50, 50);
@@ -152,8 +151,9 @@ void MyGLWindow::draw()
     glm::vec3 lightIntensity(1, 1, 1);
     // call shader program
     {
-        glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
-        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0, 0.0, 0.0));
+        static float rotationSpeed = 0.01f;
+        glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 3.0, 0.0f));
+        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
         glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
 
@@ -180,9 +180,13 @@ void MyGLWindow::draw()
         glUniformMatrix3fv(this->_shaderProgramBunnyTextured.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
         glUniformMatrix4fv(this->_shaderProgramBunnyTextured.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 
-        if (_bunnyTextured.has_value()) {
+        /*if (_bunnyTextured.has_value()) {
             glUniform1i(this->_shaderProgramBunnyTextured.uniform("Tex1"), 0);
             _bunnyTextured->draw();
+        }*/
+        if (_earth.has_value()) {
+            glUniform1i(this->_shaderProgramBunnyTextured.uniform("Tex1"), 0);
+            _earth->draw();
         }
         //    if (_cube.has_value())
         //        _cube->draw();

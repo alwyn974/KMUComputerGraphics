@@ -13,12 +13,6 @@ BunnyTextured::BunnyTextured(const std::string &texturePath) : _vaoHandle(0), _h
     initialize();
 }
 
-BunnyTextured::~BunnyTextured()
-{
-//    glDeleteTextures(1, &_textureId);
-//    glDeleteVertexArrays(1, &_vaoHandle);
-}
-
 void BunnyTextured::draw() const
 {
     glBindTexture(GL_TEXTURE_2D, this->_textureId);

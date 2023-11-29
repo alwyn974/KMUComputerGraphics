@@ -2,17 +2,16 @@
 // Created by alwyn on 29/11/2023.
 //
 
-#ifndef KMU_BUNNYTEXTURED_HPP
-#define KMU_BUNNYTEXTURED_HPP
+#ifndef KMU_EARTH_HPP
+#define KMU_EARTH_HPP
 
-#include "Loader.hpp"
-#include <string>
+#include "Sphere.hpp"
 
-class BunnyTextured {
+class Earth : public Sphere {
 public:
-    explicit BunnyTextured(const std::string &texturePath);
+    explicit Earth(float rad, GLuint slices, GLuint stacks, const std::string &texturePath);
 
-    void draw() const;
+    void draw() override;
 
     const std::string &getTexturePath() const
     {
@@ -45,14 +44,11 @@ public:
     }
 
 private:
-    void initialize();
-
     std::string _texturePath;
     int _width, _height, _channels;
     unsigned char *_textureData;
 
-    GLuint _vaoHandle;
     GLuint _textureId;
 };
 
-#endif //KMU_BUNNYTEXTURED_HPP
+#endif //KMU_EARTH_HPP

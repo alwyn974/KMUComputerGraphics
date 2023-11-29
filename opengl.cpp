@@ -140,6 +140,16 @@ int main(int ac, char **av)
 
     myGLWindow = std::make_unique<MyGLWindow>(width, height);
 
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
+
     int frame = 0;
     double lastTime = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
@@ -147,7 +157,8 @@ int main(int ac, char **av)
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-        myGLWindow->draw();
+        ImGui::ShowDemoWindow();
+//        myGLWindow->draw();
         // draw fps
         frame++;
         double currentTime = glfwGetTime();
@@ -157,6 +168,9 @@ int main(int ac, char **av)
             lastTime = currentTime;
         }
 
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
         // swap buffers
         glfwSwapBuffers(window);
         // poll events
@@ -164,6 +178,9 @@ int main(int ac, char **av)
 
         mouseDragging(width, height);
     }
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;

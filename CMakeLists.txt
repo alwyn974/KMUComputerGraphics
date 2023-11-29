@@ -36,6 +36,8 @@ add_executable(KMU lib/gl3w/gl3w.c
         src/external/imgui/imgui_widgets.cpp
         src/external/imgui/misc/cpp/imgui_stdlib.cpp
         src/external/imgui/imgui_demo.cpp
+        src/external/imgui/imgui_impl_glfw.cpp
+        src/external/imgui/imgui_impl_opengl3.cpp
         #main.cpp
         opengl.cpp
         src/main/MyGlWindow.cpp
@@ -51,6 +53,8 @@ add_executable(KMU lib/gl3w/gl3w.c
         src/main/object/Cow.cpp
         src/main/object/BunnyTextured.cpp
         include/object/BunnyTextured.hpp
+        src/main/object/Earth.cpp
+        include/object/Earth.hpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)
 

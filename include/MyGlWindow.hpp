@@ -16,7 +16,14 @@
 #include "object/VBOTorus.hpp"
 #include "object/Bunny.hpp"
 #include "object/BunnyTextured.hpp"
+#include "object/Earth.hpp"
 #include "GL/gl3w.h"
+
+#include "imgui.h"
+#include "imgui_stdlib.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -57,6 +64,7 @@ private:
     std::optional<VBOTorus> _torus;
     std::optional<Bunny> _bunny;
     std::optional<BunnyTextured> _bunnyTextured;
+    std::optional<Earth> _earth;
 
     void initialize();
 };
