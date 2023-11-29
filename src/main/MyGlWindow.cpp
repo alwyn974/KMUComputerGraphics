@@ -7,7 +7,7 @@
 #include "imgui.h"
 #include "imgui_stdlib.h"
 
-static float DEFAULT_VIEW_POINT[3] = {5, 5, 5};
+static float DEFAULT_VIEW_POINT[3] = {150, 150, 150};
 static float DEFAULT_VIEW_CENTER[3] = {0, 0, 0};
 static float DEFAULT_UP_VECTOR[3] = {0, 1, 0};
 
@@ -98,7 +98,7 @@ void MyGLWindow::initialize()
 
     this->_shaderProgramFloor.addUniform("MVP"); // Projection * View * Model : mat4
 
-    _floor = CheckeredFloor(100, 10);
+    _floor = CheckeredFloor(500, 10);
 
 //    _teapot = VBOTeapot(64, glm::mat4(1.0f));
 //    _torus = VBOTorus(1.5f, 0.75f, 50, 50);
@@ -180,9 +180,10 @@ void MyGLWindow::draw()
         glUniformMatrix3fv(this->_shaderProgramBunnyTextured.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
         glUniformMatrix4fv(this->_shaderProgramBunnyTextured.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 
-        if (_bunnyTextured.has_value())
+        if (_bunnyTextured.has_value()) {
+            glUniform1i(this->_shaderProgramBunnyTextured.uniform("Tex1"), 0);
             _bunnyTextured->draw();
-
+        }
         //    if (_cube.has_value())
         //        _cube->draw();
 

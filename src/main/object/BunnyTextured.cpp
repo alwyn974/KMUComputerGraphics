@@ -21,16 +21,13 @@ BunnyTextured::~BunnyTextured()
 
 void BunnyTextured::draw() const
 {
-    glBindVertexArray(_vaoHandle);
-    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, this->_textureId);
+
+    glBindVertexArray(_vaoHandle);
     glDrawElements(GL_TRIANGLES, sizeof(modelIndices) / sizeof(GLuint), GL_UNSIGNED_INT, nullptr);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
-//    glBindVertexArray(_vaoHandle);
-//    int size;
-//    glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-//    glDrawElements(GL_TRIANGLES, size / sizeof(glm::uint32), GL_UNSIGNED_INT, nullptr);
-//    glBindVertexArray(0);
 }
 
 void BunnyTextured::initialize()
