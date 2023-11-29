@@ -149,13 +149,29 @@ void MyGLWindow::draw()
 
     glm::vec4 lightPos(10, 10, 0, 1);
     glm::vec3 lightIntensity(1, 1, 1);
+    static float rotationSpeed = 0.5f;
+    static float rotationAngle = -90.0f;
+    static float spinAngle = 0.0f;
+    static bool open = true;
+    static bool spinning = true;
+
+    ImGui::Begin("Object Properties", &open, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Checkbox("Spin", &spinning);
+    ImGui::SliderFloat("Rotation Speed", &rotationSpeed, 0.0f, 100.0f);
+    ImGui::SliderFloat("Rotation Angle X", &rotationAngle, -180.0f, 180);
+    ImGui::SliderFloat("Rotation Angle Z", &spinAngle, 0.0f, 360.0f);
+    ImGui::End();
+
     // call shader program
     {
-        static float rotationSpeed = 0.01f;
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 3.0, 0.0f));
-        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(1.0, 0.0, 0.0));
+        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(rotationAngle), glm::vec3(1.0, 0.0, 0.0));
+        if (spinning)
+            spinAngle += rotationSpeed;
+        spinAngle = std::fmod(spinAngle, 360.0f);
+        glm::mat4 spin = glm::rotate(glm::mat4(1.0f), glm::radians(spinAngle), glm::vec3(0.0, 0.0, 1.0));
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
-        glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
+        glm::mat4 model = translate * rotate * spin * scale; // Combination of transformation matrix
 
         glm::mat4 mView = view * model;
         glm::mat4 mvp = projection * view * model;

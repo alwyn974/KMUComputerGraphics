@@ -110,7 +110,7 @@ int main(int ac, char **av)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    int width = 800, height = 800;
+    int width = 1280, height = 720;
 
     GLFWwindow *window = glfwCreateWindow(width, height, "My Title", nullptr, nullptr);
     if (!window) {
@@ -157,8 +157,16 @@ int main(int ac, char **av)
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
 
-        ImGui::ShowDemoWindow();
-//        myGLWindow->draw();
+        // poll events
+        glfwPollEvents();
+        if (!io.WantCaptureMouse)
+            mouseDragging(width, height);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        myGLWindow->draw();
         // draw fps
         frame++;
         double currentTime = glfwGetTime();
@@ -173,10 +181,6 @@ int main(int ac, char **av)
 
         // swap buffers
         glfwSwapBuffers(window);
-        // poll events
-        glfwPollEvents();
-
-        mouseDragging(width, height);
     }
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
