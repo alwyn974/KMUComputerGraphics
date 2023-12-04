@@ -64,7 +64,7 @@ void MyGLWindow::initialize()
 {
     //    this->_shaderProgram.initFromFiles("src/resources/shader/lightning/phong.vert", "src/resources/shader/lightning/phong.frag");
     this->_shaderProgramFloor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
-    this->_shaderProgramBunnyTextured.initFromFiles("src/resources/shader/texture/simple.vert", "src/resources/shader/texture/simple.frag");
+    this->_shaderProgramBunnyTextured.initFromFiles("src/resources/shader/texture/two_layers.vert", "src/resources/shader/texture/two_layers.frag");
 //    this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
 //    this->_shaderProgramTorus.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
     // TODO: use only one shader program for teapot and torus
@@ -93,6 +93,7 @@ void MyGLWindow::initialize()
     this->_shaderProgramBunnyTextured.addUniform("NormalMatrix"); // Refer next slide : mat3
     this->_shaderProgramBunnyTextured.addUniform("MVP"); // Projection * View * Model : mat4
     this->_shaderProgramBunnyTextured.addUniform("Tex1");
+    this->_shaderProgramBunnyTextured.addUniform("Tex2");
 
     this->_shaderProgramFloor.addUniform("MVP"); // Projection * View * Model : mat4
 
@@ -103,8 +104,8 @@ void MyGLWindow::initialize()
 
 //    _bunny = Bunny();
 
-    _bunnyTextured = BunnyTextured("src/resources/textures/bunny.png");
-    _earth = Earth(1, 50, 50, "src/resources/textures/earth.jpg");
+    _bunnyTextured = BunnyTextured("src/resources/textures/bunny.png", "src/resources/textures/moss.png");
+//    _earth = Earth(1, 50, 50, "src/resources/textures/earth.jpg");
 
 //    _cow = Cow();
 //    _sphere = Sphere(1, 50, 50);
@@ -196,14 +197,14 @@ void MyGLWindow::draw()
         glUniformMatrix3fv(this->_shaderProgramBunnyTextured.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
         glUniformMatrix4fv(this->_shaderProgramBunnyTextured.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 
-        /*if (_bunnyTextured.has_value()) {
-            glUniform1i(this->_shaderProgramBunnyTextured.uniform("Tex1"), 0);
-            _bunnyTextured->draw();
-        }*/
-        if (_earth.has_value()) {
+        if (_bunnyTextured.has_value()) {
+//            glUniform1i(this->_shaderProgramBunnyTextured.uniform("Tex1"), 0);
+            _bunnyTextured->draw(this->_shaderProgramBunnyTextured);
+        }
+        /*if (_earth.has_value()) {
             glUniform1i(this->_shaderProgramBunnyTextured.uniform("Tex1"), 0);
             _earth->draw();
-        }
+        }*/
         //    if (_cube.has_value())
         //        _cube->draw();
 

@@ -10,9 +10,9 @@
 
 class BunnyTextured {
 public:
-    explicit BunnyTextured(const std::string &texturePath);
+    explicit BunnyTextured(const std::string &texturePath, const std::string &secondTexturePath);
 
-    void draw() const;
+    void draw(ShaderProgram &shaderProgram) const;
 
     const std::string &getTexturePath() const
     {
@@ -34,25 +34,22 @@ public:
         return _channels;
     }
 
-    unsigned char *getTextureData() const
+    const GLuint *getTextureIds() const
     {
-        return _textureData;
-    }
-
-    GLuint getTextureId() const
-    {
-        return _textureId;
+        return _textureIds;
     }
 
 private:
     void initialize();
 
     std::string _texturePath;
+    std::string _secondTexturePath;
     int _width, _height, _channels;
     unsigned char *_textureData;
+    unsigned char *_secondTextureData;
 
     GLuint _vaoHandle;
-    GLuint _textureId;
+    GLuint _textureIds[2];
 };
 
 #endif //KMU_BUNNYTEXTURED_HPP

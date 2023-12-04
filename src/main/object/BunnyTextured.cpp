@@ -7,15 +7,24 @@
 #include "object/BunnyTextured.hpp"
 #include "object/data/BunnyTexturedData.hpp"
 
-BunnyTextured::BunnyTextured(const std::string &texturePath) : _vaoHandle(0), _height(0), _width(0), _channels(0), _textureData(nullptr)
+BunnyTextured::BunnyTextured(const std::string &texturePath, const std::string &secondTexturePath) : _vaoHandle(0), _height(0), _width(0), _channels(0), _textureData(nullptr)
 {
     _texturePath = texturePath;
+    _secondTexturePath = secondTexturePath;
     initialize();
 }
 
-void BunnyTextured::draw() const
+void BunnyTextured::draw(ShaderProgram &shaderProgram) const
 {
-    glBindTexture(GL_TEXTURE_2D, this->_textureId);
+    glEnable(GL_TEXTURE_2D);
+
+    glActiveTexture(GL_TEXTURE0); //Activate texture 0
+    glBindTexture(GL_TEXTURE_2D, this->_textureIds[0]);
+    glUniform1i(shaderProgram.uniform("Tex1"), 0);
+
+    glActiveTexture(GL_TEXTURE1); //Activate texture 1
+    glBindTexture(GL_TEXTURE_2D, this->_textureIds[1]);
+    glUniform1i(shaderProgram.uniform("Tex2"), 1);
 
     glBindVertexArray(_vaoHandle);
     glDrawElements(GL_TRIANGLES, sizeof(modelIndices) / sizeof(GLuint), GL_UNSIGNED_INT, nullptr);
@@ -79,9 +88,9 @@ void BunnyTextured::initialize()
     glBindVertexArray(0);
 
     glActiveTexture(GL_TEXTURE0);
-    glGenTextures(1, &this->_textureId);
-    glBindTexture(GL_TEXTURE_2D, this->_textureId);
+    glGenTextures(1, &this->_textureIds[0]);
 
+    glBindTexture(GL_TEXTURE_2D, this->_textureIds[0]);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
@@ -98,5 +107,28 @@ void BunnyTextured::initialize()
     glGenerateMipmap(GL_TEXTURE_2D);
 
     stbi_image_free(this->_textureData);
+
+    glActiveTexture(GL_TEXTURE1);
+    glGenTextures(1, &this->_textureIds[1]);
+
+    glBindTexture(GL_TEXTURE_2D, this->_textureIds[1]);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+
+    int width, height, channels;
+    this->_secondTextureData = stbi_load(this->_secondTexturePath.c_str(), &width, &height, &channels, 0);
+    if (this->_secondTextureData == nullptr)
+    {
+        std::cerr << "Error loading texture: " << this->_secondTexturePath << std::endl;
+        exit(1);
+    }
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, this->_secondTextureData);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(this->_secondTextureData);
+
     glBindTexture(GL_TEXTURE_2D, 0);
 }
