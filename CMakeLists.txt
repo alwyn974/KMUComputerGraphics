@@ -55,6 +55,8 @@ add_executable(KMU lib/gl3w/gl3w.c
         include/object/BunnyTextured.hpp
         src/main/object/Earth.cpp
         include/object/Earth.hpp
+        src/main/object/Ogre.cpp
+        include/object/Ogre.hpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)
 

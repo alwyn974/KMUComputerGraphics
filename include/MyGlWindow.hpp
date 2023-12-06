@@ -17,6 +17,7 @@
 #include "object/Bunny.hpp"
 #include "object/BunnyTextured.hpp"
 #include "object/Earth.hpp"
+#include "object/Ogre.hpp"
 #include "GL/gl3w.h"
 
 #include "imgui.h"
@@ -54,6 +55,7 @@ private:
     ShaderProgram _shaderProgramTeapot;
     ShaderProgram _shaderProgramTorus;
     ShaderProgram _shaderProgramBunnyTextured;
+    ShaderProgram _shaderProgramOgre;
     int _width;
     int _height;
     std::optional<ColorCube> _cube;
@@ -65,6 +67,7 @@ private:
     std::optional<Bunny> _bunny;
     std::optional<BunnyTextured> _bunnyTextured;
     std::optional<Earth> _earth;
+    std::optional<Ogre> _ogre;
 
     void initialize();
 };

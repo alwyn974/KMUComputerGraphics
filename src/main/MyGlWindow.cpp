@@ -5,7 +5,7 @@
 #include <array>
 #include "MyGlWindow.hpp"
 
-static float DEFAULT_VIEW_POINT[3] = {7, 7, 7};
+static float DEFAULT_VIEW_POINT[3] = {5, 7, 5};
 static float DEFAULT_VIEW_CENTER[3] = {0, 0, 0};
 static float DEFAULT_UP_VECTOR[3] = {0, 1, 0};
 
@@ -64,7 +64,8 @@ void MyGLWindow::initialize()
 {
     //    this->_shaderProgram.initFromFiles("src/resources/shader/lightning/phong.vert", "src/resources/shader/lightning/phong.frag");
     this->_shaderProgramFloor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
-    this->_shaderProgramBunnyTextured.initFromFiles("src/resources/shader/texture/two_layers.vert", "src/resources/shader/texture/two_layers.frag");
+//    this->_shaderProgramBunnyTextured.initFromFiles("src/resources/shader/texture/two_layers.vert", "src/resources/shader/texture/two_layers.frag");
+    this->_shaderProgramOgre.initFromFiles("src/resources/shader/normal_mapping/simple.vert", "src/resources/shader/normal_mapping/simple.frag");
 //    this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
 //    this->_shaderProgramTorus.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
     // TODO: use only one shader program for teapot and torus
@@ -82,18 +83,18 @@ void MyGLWindow::initialize()
         shaderProgram->addUniform("NormalMatrix"); // Refer next slide : mat3
         shaderProgram->addUniform("MVP"); // Projection * View * Model : mat4
     }*/
-    this->_shaderProgramBunnyTextured.addUniform("LightPosition");
-    this->_shaderProgramBunnyTextured.addUniform("LightIntensity");
-    this->_shaderProgramBunnyTextured.addUniform("Ka");
-    this->_shaderProgramBunnyTextured.addUniform("Kd");
-    this->_shaderProgramBunnyTextured.addUniform("Ks");
-    this->_shaderProgramBunnyTextured.addUniform("Shiness");
+    this->_shaderProgramOgre.addUniform("LightPosition");
+    this->_shaderProgramOgre.addUniform("LightIntensity");
+    this->_shaderProgramOgre.addUniform("Ka");
+//    this->_shaderProgramOgre.addUniform("Kd");
+    this->_shaderProgramOgre.addUniform("Ks");
+    this->_shaderProgramOgre.addUniform("Shiness");
 
-    this->_shaderProgramBunnyTextured.addUniform("ModelViewMatrix"); // View*Model : mat4
-    this->_shaderProgramBunnyTextured.addUniform("NormalMatrix"); // Refer next slide : mat3
-    this->_shaderProgramBunnyTextured.addUniform("MVP"); // Projection * View * Model : mat4
-    this->_shaderProgramBunnyTextured.addUniform("Tex1");
-    this->_shaderProgramBunnyTextured.addUniform("Tex2");
+    this->_shaderProgramOgre.addUniform("ModelViewMatrix"); // View*Model : mat4
+    this->_shaderProgramOgre.addUniform("NormalMatrix"); // Refer next slide : mat3
+    this->_shaderProgramOgre.addUniform("MVP"); // Projection * View * Model : mat4
+    this->_shaderProgramOgre.addUniform("ColorTex");
+    this->_shaderProgramOgre.addUniform("NormalMapTex");
 
     this->_shaderProgramFloor.addUniform("MVP"); // Projection * View * Model : mat4
 
@@ -104,8 +105,10 @@ void MyGLWindow::initialize()
 
 //    _bunny = Bunny();
 
-    _bunnyTextured = BunnyTextured("src/resources/textures/bunny.png", "src/resources/textures/moss.png");
+//    _bunnyTextured = BunnyTextured("src/resources/textures/bunny.png", "src/resources/textures/moss.png");
 //    _earth = Earth(1, 50, 50, "src/resources/textures/earth.jpg");
+
+    _ogre = Ogre("src/resources/textures/ogre_diffuse2.png", "src/resources/textures/ogre_normalmap2.png");
 
 //    _cow = Cow();
 //    _sphere = Sphere(1, 50, 50);
@@ -149,12 +152,12 @@ void MyGLWindow::draw()
     }
 
     glm::vec4 lightPos(10, 10, 0, 1);
-    glm::vec3 lightIntensity(1, 1, 1);
+    glm::vec3 lightIntensity(0.8, 0.8, 0.8);
     static float rotationSpeed = 0.5f;
-    static float rotationAngle = -90.0f;
+    static float rotationAngle = 0.0f;
     static float spinAngle = 0.0f;
     static bool open = true;
-    static bool spinning = true;
+    static bool spinning = false;
 
     ImGui::Begin("Object Properties", &open, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Checkbox("Spin", &spinning);
@@ -180,26 +183,29 @@ void MyGLWindow::draw()
         glm::mat4 inverseMVP = glm::inverse(mView);
         glm::mat3 normalMatrix = glm::mat3(glm::transpose(inverseMVP)); // normal matrix
 
-        this->_shaderProgramBunnyTextured.use();
+        this->_shaderProgramOgre.use();
         // draw
 
-        glUniform4fv(this->_shaderProgramBunnyTextured.uniform("LightPosition"), 1, glm::value_ptr(lightPos));
-        glUniform3fv(this->_shaderProgramBunnyTextured.uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
+        glUniform4fv(this->_shaderProgramOgre.uniform("LightPosition"), 1, glm::value_ptr(lightPos));
+        glUniform3fv(this->_shaderProgramOgre.uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
         const MaterialColor color = {
             .ka = glm::vec3(0.3, 0.3, 0.3),
-            .kd = glm::vec3(1, 1, 1),
-            .ks = glm::vec3(0.3, 0.3, 0.3),
-            .shiness = 10
+            .ks = glm::vec3(0.1, 0.1, 0.1),
+            .shiness = 3.0f
         };
-        MaterialColor::populateShaderProgram(_shaderProgramBunnyTextured, color);
+        MaterialColor::populateShaderProgram(_shaderProgramOgre, color, {
+            {MaterialColor::Variable::Ka,      "Ka"},
+            {MaterialColor::Variable::Ks,      "Ks"},
+            {MaterialColor::Variable::Shiness, "Shiness"},
+        });
 
-        glUniformMatrix4fv(this->_shaderProgramBunnyTextured.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
-        glUniformMatrix3fv(this->_shaderProgramBunnyTextured.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
-        glUniformMatrix4fv(this->_shaderProgramBunnyTextured.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+        glUniformMatrix4fv(this->_shaderProgramOgre.uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(mView));
+        glUniformMatrix3fv(this->_shaderProgramOgre.uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normalMatrix));
+        glUniformMatrix4fv(this->_shaderProgramOgre.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 
-        if (_bunnyTextured.has_value()) {
-//            glUniform1i(this->_shaderProgramBunnyTextured.uniform("Tex1"), 0);
-            _bunnyTextured->draw(this->_shaderProgramBunnyTextured);
+        if (_ogre.has_value()) {
+//            glUniform1i(this->_shaderProgramOgre.uniform("Tex1"), 0);
+            _ogre->draw(this->_shaderProgramOgre);
         }
         /*if (_earth.has_value()) {
             glUniform1i(this->_shaderProgramBunnyTextured.uniform("Tex1"), 0);
@@ -218,7 +224,7 @@ void MyGLWindow::draw()
 //            _sphere->draw();
 
         // unbind shader program
-        this->_shaderProgramBunnyTextured.disable();
+        this->_shaderProgramOgre.disable();
     }
 
     /*{
