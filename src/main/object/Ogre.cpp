@@ -149,19 +149,20 @@ void Ogre::initialize()
 
 std::tuple<std::vector<glm::vec3>, std::vector<glm::vec3>> Ogre::computeTangentBasis()
 {
-    std::vector<glm::vec3> tangents;
-    std::vector<glm::vec3> bitangents;
+    std::vector<glm::vec3> tangents(19985);
+    std::vector<glm::vec3> bitangents(19985);
+    std::vector<int> verticesShared(19985);
 
-    for (int i = 0; i < 19985; i += 3) {
+    for (int i = 0; i < 119568; i += 3) {
         // Shortcuts for vertices
-        const glm::vec3 &v0 = modelVertices[i + 0].position;
-        const glm::vec3 &v1 = modelVertices[i + 1].position;
-        const glm::vec3 &v2 = modelVertices[i + 2].position;
+        const glm::vec3 &v0 = modelVertices[modelIndices[i]].position;
+        const glm::vec3 &v1 = modelVertices[modelIndices[i + 1]].position;
+        const glm::vec3 &v2 = modelVertices[modelIndices[i + 2]].position;
 
         // Shortcuts for UVs
-        const glm::vec2 &uv0 = modelVertices[i + 0].uv;
-        const glm::vec2 &uv1 = modelVertices[i + 1].uv;
-        const glm::vec2 &uv2 = modelVertices[i + 2].uv;
+        const glm::vec2 &uv0 = modelVertices[modelIndices[i]].uv;
+        const glm::vec2 &uv1 = modelVertices[modelIndices[i + 1]].uv;
+        const glm::vec2 &uv2 = modelVertices[modelIndices[i + 2]].uv;
 
         // Edges of the triangle : position delta
         const glm::vec3 deltaPos1 = v1 - v0;
@@ -174,16 +175,25 @@ std::tuple<std::vector<glm::vec3>, std::vector<glm::vec3>> Ogre::computeTangentB
         const float r = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV1.y * deltaUV2.x);
         const glm::vec3 tangent = (deltaPos1 * deltaUV2.y - deltaPos2 * deltaUV1.y) * r;
         const glm::vec3 bitangent = (deltaPos2 * deltaUV1.x - deltaPos1 * deltaUV2.x) * r;
-        // Set the same tangent for all three vertices of the triangle.
-        // They will be merged later, in vboindexer.cpp
-        tangents.push_back(tangent);
-        tangents.push_back(tangent);
-        tangents.push_back(tangent);
 
-        // Same thing for bitangents
-        bitangents.push_back(bitangent);
-        bitangents.push_back(bitangent);
-        bitangents.push_back(bitangent);
+        tangents[modelIndices[i]] += tangent;
+        tangents[modelIndices[i + 1]] += tangent;
+        tangents[modelIndices[i + 2]] += tangent;
+
+        bitangents[modelIndices[i]] += bitangent;
+        bitangents[modelIndices[i + 1]] += bitangent;
+        bitangents[modelIndices[i + 2]] += bitangent;
+
+        verticesShared[modelIndices[i]] += 1;
+        verticesShared[modelIndices[i + 1]] += 1;
+        verticesShared[modelIndices[i + 2]] += 1;
+    }
+    std::cout << "Tangents size: " << tangents.size() << std::endl;
+    std::cout << "Bitangents size: " << bitangents.size() << std::endl;
+
+    for (int i = 0; i < 19985; i++) {
+        tangents[i] /= verticesShared[i];
+        bitangents[i] /= verticesShared[i];
     }
 
     return {tangents, bitangents};

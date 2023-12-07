@@ -193,7 +193,7 @@ void MyGLWindow::draw()
             .ks = glm::vec3(0.1, 0.1, 0.1),
             .shiness = 3.0f
         };
-        MaterialColor::populateShaderProgram(_shaderProgramOgre, color, {
+        MaterialColor::populateShaderProgram(this->_shaderProgramOgre, color, {
             {MaterialColor::Variable::Ka,      "Ka"},
             {MaterialColor::Variable::Ks,      "Ks"},
             {MaterialColor::Variable::Shiness, "Shiness"},

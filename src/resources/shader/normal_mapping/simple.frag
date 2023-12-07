@@ -31,9 +31,9 @@ void main()
     vec3 specular = Ks * LightIntensity * pow(max(dot(R, V), 0.0), Shiness);
 //    vec3 specular = LightIntensity * Ks * pow(max(dot(H, N), 0.0), Shiness); // Use the half-way vector here
 
-    vec4 texColor = texture(ColorTex, TexCoord);
-    vec4 texColor2 = texture(NormalMapTex, TexCoord);
-    vec4 texColor3 = mix(texColor2, texColor, texColor2.a);
+//    vec4 texColor = texture(ColorTex, TexCoord);
+//    vec4 texColor2 = texture(NormalMapTex, TexCoord);
+//    vec4 texColor3 = mix(texColor2, texColor, texColor2.a);
 
     vec3 finalColor = ambient + diffuse + specular;
 
