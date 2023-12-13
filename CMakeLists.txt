@@ -57,6 +57,8 @@ add_executable(KMU lib/gl3w/gl3w.c
         include/object/Earth.hpp
         src/main/object/Ogre.cpp
         include/object/Ogre.hpp
+        src/main/Skybox.cpp
+        include/Skybox.hpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)
 

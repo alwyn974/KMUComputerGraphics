@@ -18,6 +18,7 @@
 #include "object/BunnyTextured.hpp"
 #include "object/Earth.hpp"
 #include "object/Ogre.hpp"
+#include "Skybox.hpp"
 #include "GL/gl3w.h"
 
 #include "imgui.h"
@@ -56,6 +57,7 @@ private:
     ShaderProgram _shaderProgramTorus;
     ShaderProgram _shaderProgramBunnyTextured;
     ShaderProgram _shaderProgramOgre;
+    ShaderProgram _shaderProgramSkybox;
     int _width;
     int _height;
     std::optional<ColorCube> _cube;
@@ -68,6 +70,7 @@ private:
     std::optional<BunnyTextured> _bunnyTextured;
     std::optional<Earth> _earth;
     std::optional<Ogre> _ogre;
+    std::optional<Skybox> _skybox;
 
     void initialize();
 };

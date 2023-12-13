@@ -5,7 +5,7 @@
 #include <array>
 #include "MyGlWindow.hpp"
 
-static float DEFAULT_VIEW_POINT[3] = {5, 7, 5};
+static float DEFAULT_VIEW_POINT[3] = {5, 5, 5};
 static float DEFAULT_VIEW_CENTER[3] = {0, 0, 0};
 static float DEFAULT_UP_VECTOR[3] = {0, 1, 0};
 
@@ -64,10 +64,10 @@ void MyGLWindow::initialize()
 {
     //    this->_shaderProgram.initFromFiles("src/resources/shader/lightning/phong.vert", "src/resources/shader/lightning/phong.frag");
     this->_shaderProgramFloor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
-//    this->_shaderProgramBunnyTextured.initFromFiles("src/resources/shader/texture/two_layers.vert", "src/resources/shader/texture/two_layers.frag");
-    this->_shaderProgramOgre.initFromFiles("src/resources/shader/normal_mapping/simple.vert", "src/resources/shader/normal_mapping/simple.frag");
-//    this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
-//    this->_shaderProgramTorus.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
+    //    this->_shaderProgramBunnyTextured.initFromFiles("src/resources/shader/texture/two_layers.vert", "src/resources/shader/texture/two_layers.frag");
+    // this->_shaderProgramOgre.initFromFiles("src/resources/shader/normal_mapping/simple.vert", "src/resources/shader/normal_mapping/simple.frag");
+    //    this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
+    //    this->_shaderProgramTorus.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
     // TODO: use only one shader program for teapot and torus
 
     /*const std::array<ShaderProgram *, 2> shaderPrograms = {&_shaderProgramTeapot, &_shaderProgramTorus};
@@ -83,37 +83,59 @@ void MyGLWindow::initialize()
         shaderProgram->addUniform("NormalMatrix"); // Refer next slide : mat3
         shaderProgram->addUniform("MVP"); // Projection * View * Model : mat4
     }*/
-    this->_shaderProgramOgre.addUniform("LightPosition");
-    this->_shaderProgramOgre.addUniform("LightIntensity");
-    this->_shaderProgramOgre.addUniform("Ka");
-//    this->_shaderProgramOgre.addUniform("Kd");
-    this->_shaderProgramOgre.addUniform("Ks");
-    this->_shaderProgramOgre.addUniform("Shiness");
+    // this->_shaderProgramOgre.addUniform("LightPosition");
+    // this->_shaderProgramOgre.addUniform("LightIntensity");
+    // this->_shaderProgramOgre.addUniform("Ka");
+    //    this->_shaderProgramOgre.addUniform("Kd");
+    // this->_shaderProgramOgre.addUniform("Ks");
+    // this->_shaderProgramOgre.addUniform("Shiness");
 
-    this->_shaderProgramOgre.addUniform("ModelViewMatrix"); // View*Model : mat4
-    this->_shaderProgramOgre.addUniform("NormalMatrix"); // Refer next slide : mat3
-    this->_shaderProgramOgre.addUniform("MVP"); // Projection * View * Model : mat4
-    this->_shaderProgramOgre.addUniform("ColorTex");
-    this->_shaderProgramOgre.addUniform("NormalMapTex");
+    // this->_shaderProgramOgre.addUniform("ModelViewMatrix"); // View*Model : mat4
+    // this->_shaderProgramOgre.addUniform("NormalMatrix"); // Refer next slide : mat3
+    // this->_shaderProgramOgre.addUniform("MVP"); // Projection * View * Model : mat4
+    // this->_shaderProgramOgre.addUniform("ColorTex");
+    // this->_shaderProgramOgre.addUniform("NormalMapTex");
 
     this->_shaderProgramFloor.addUniform("MVP"); // Projection * View * Model : mat4
 
     _floor = CheckeredFloor(100, 10);
 
-//    _teapot = VBOTeapot(64, glm::mat4(1.0f));
-//    _torus = VBOTorus(1.5f, 0.75f, 50, 50);
+    _teapot = VBOTeapot(64, glm::mat4(1.0f));
+    //    _torus = VBOTorus(1.5f, 0.75f, 50, 50);
 
-//    _bunny = Bunny();
+    //    _bunny = Bunny();
 
-//    _bunnyTextured = BunnyTextured("src/resources/textures/bunny.png", "src/resources/textures/moss.png");
-//    _earth = Earth(1, 50, 50, "src/resources/textures/earth.jpg");
+    // _bunnyTextured = BunnyTextured("src/resources/textures/bunny.png", "src/resources/textures/moss.png");
+    //    _earth = Earth(1, 50, 50, "src/resources/textures/earth.jpg");
 
-    _ogre = Ogre("src/resources/textures/ogre_diffuse2.png", "src/resources/textures/ogre_normalmap2.png");
+    // _ogre = Ogre("src/resources/textures/ogre_diffuse2.png", "src/resources/textures/ogre_normalmap2.png");
 
-//    _cow = Cow();
-//    _sphere = Sphere(1, 50, 50);
+    this->_shaderProgramSkybox.initFromFiles("src/resources/shader/skybox/skybox.vert", "src/resources/shader/skybox/skybox.frag");
+    this->_shaderProgramSkybox.addUniform("DrawSkyBox"); //This is boolean variable for special use, more in later
+    this->_shaderProgramSkybox.addUniform("WorldCameraPosition"); //Camera position in the world space
 
-    //    _cube = ColorCube(_width, _height);
+    this->_shaderProgramSkybox.addUniform("ModelMatrix"); //Model Matrix for converting from local to world
+    this->_shaderProgramSkybox.addUniform("MVP");
+    this->_shaderProgramSkybox.addUniform("CubeMapTex"); //cubemap texture
+    this->_shaderProgramSkybox.addUniform("MaterialColor"); //Object color
+    this->_shaderProgramSkybox.addUniform("ReflectFactor"); //Ratio of mixup the objectcolor with cubemap color
+
+
+    // Create skybox
+    const std::vector<std::string> faces{
+        "src/resources/textures/skybox/right.jpg",
+        "src/resources/textures/skybox/left.jpg",
+        "src/resources/textures/skybox/top.jpg",
+        "src/resources/textures/skybox/bottom.jpg",
+        "src/resources/textures/skybox/front.jpg",
+        "src/resources/textures/skybox/back.jpg"
+    };
+    _skybox = Skybox(/*faces*/);
+
+    // _cow = Cow();
+    // _sphere = Sphere(5, 50, 50);
+
+    // _cube = ColorCube(_width, _height);
 }
 
 void MyGLWindow::draw()
@@ -128,19 +150,13 @@ void MyGLWindow::draw()
     glm::vec3 up = viewer->getUpVector();
     glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
 
-    glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 500.0f);
+    glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 10000.0f);
 
-    {
+    /*{
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
         glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0, 0.0, 0.0));
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
         glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
-
-        glm::mat4 mView = view * model;
-        glm::mat4 mvp = projection * view * model;
-
-        glm::mat4 inverseMVP = glm::inverse(mView);
-        glm::mat3 normalMatrix = glm::mat3(glm::transpose(inverseMVP)); // normal matrix
 
         this->_shaderProgramFloor.use();
 
@@ -149,7 +165,7 @@ void MyGLWindow::draw()
             _floor->draw();
 
         this->_shaderProgramFloor.disable();
-    }
+    }*/
 
     glm::vec4 lightPos(10, 10, 0, 1);
     glm::vec3 lightIntensity(0.8, 0.8, 0.8);
@@ -159,15 +175,15 @@ void MyGLWindow::draw()
     static bool open = true;
     static bool spinning = false;
 
-    ImGui::Begin("Object Properties", &open, ImGuiWindowFlags_AlwaysAutoResize);
+    /*ImGui::Begin("Object Properties", &open, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Checkbox("Spin", &spinning);
     ImGui::SliderFloat("Rotation Speed", &rotationSpeed, 0.0f, 100.0f);
     ImGui::SliderFloat("Rotation Angle X", &rotationAngle, -180.0f, 180);
     ImGui::SliderFloat("Rotation Angle Z", &spinAngle, 0.0f, 360.0f);
-    ImGui::End();
+    ImGui::End();*/
 
     // call shader program
-    {
+    /*{
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 3.0, 0.0f));
         glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(rotationAngle), glm::vec3(1.0, 0.0, 0.0));
         if (spinning)
@@ -204,27 +220,65 @@ void MyGLWindow::draw()
         glUniformMatrix4fv(this->_shaderProgramOgre.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 
         if (_ogre.has_value()) {
-//            glUniform1i(this->_shaderProgramOgre.uniform("Tex1"), 0);
+            //            glUniform1i(this->_shaderProgramOgre.uniform("Tex1"), 0);
             _ogre->draw(this->_shaderProgramOgre);
         }
         /*if (_earth.has_value()) {
             glUniform1i(this->_shaderProgramBunnyTextured.uniform("Tex1"), 0);
             _earth->draw();
-        }*/
+        }#1#
         //    if (_cube.has_value())
         //        _cube->draw();
 
-//        if (_teapot.has_value())
-//            _teapot->draw();
+        //        if (_teapot.has_value())
+        //            _teapot->draw();
 
-//        if (_bunny.has_value())
-//            _bunny->draw();
+        //        if (_bunny.has_value())
+        //            _bunny->draw();
 
-//        if (_sphere.has_value())
-//            _sphere->draw();
+        //        if (_sphere.has_value())
+        //            _sphere->draw();
 
         // unbind shader program
         this->_shaderProgramOgre.disable();
+    }*/
+
+    {
+        glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
+        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(rotationAngle), glm::vec3(1.0, 0.0, 0.0));
+        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
+        glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
+
+        glm::mat4 view2 = glm::mat4(glm::mat3(view));
+        glm::mat4 mvp2 = projection * view2 * model;
+
+        this->_shaderProgramSkybox.use();
+        // draw
+        glUniformMatrix4fv(this->_shaderProgramSkybox.uniform("ModelMatrix"), 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(this->_shaderProgramSkybox.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp2));
+
+        glUniform3fv(this->_shaderProgramSkybox.uniform("WorldCameraPosition"), 1, glm::value_ptr(eye));
+        glUniform3fv(this->_shaderProgramSkybox.uniform("MaterialColor"), 1, glm::value_ptr(glm::vec4(1.0f, 1.0f, 1.0f, 1.0f)));
+        glUniform1f(this->_shaderProgramSkybox.uniform("ReflectFactor"), 0.2f);
+
+        glDepthMask(GL_FALSE);
+        if (_skybox.has_value())
+            _skybox->draw(_shaderProgramSkybox);
+        glDepthMask(GL_TRUE);
+
+        if (_teapot.has_value()) {
+            glUniform1i(_shaderProgramSkybox.uniform("DrawSkyBox"), GL_FALSE); //indicate that we are doing SKybox
+            translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
+            rotate = glm::rotate(glm::mat4(1.0f), glm::radians(rotationAngle), glm::vec3(1.0, 0.0, 0.0));
+            scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
+            model = translate * rotate * scale; // Combination of transformation matrix
+
+            glm::mat4 mvp = projection * view * model;
+            glUniformMatrix4fv(this->_shaderProgramSkybox.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+            _teapot->draw();
+        }
+
+        this->_shaderProgramSkybox.disable();
     }
 
     /*{
