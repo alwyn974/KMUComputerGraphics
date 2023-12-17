@@ -21,11 +21,6 @@
 #include "Skybox.hpp"
 #include "GL/gl3w.h"
 
-#include "imgui.h"
-#include "imgui_stdlib.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
-
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -36,7 +31,7 @@ class MyGLWindow {
 public:
     explicit MyGLWindow(int width, int height);
 
-    void draw(const float delta);
+    void draw(float currentTime, float deltaTime);
 
     void setSize(int width, int height)
     {

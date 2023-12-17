@@ -60,9 +60,9 @@ MyGLWindow::MyGLWindow(int width, int height)
     this->initialize();
 }
 
-#include "ParticleSystem.hpp"
-
-std::optional<ParticleSystem> particleSystem;
+// #include "ParticleSystem.hpp"
+//
+// std::optional<ParticleSystem> particleSystem;
 
 void MyGLWindow::initialize()
 {
@@ -136,15 +136,16 @@ void MyGLWindow::initialize()
     };*/
     // _skybox = Skybox(/*faces*/);
 
-    particleSystem = ParticleSystem(1000);
+    // particleSystem = ParticleSystem(1000);
 
     // _cow = Cow();
     // _sphere = Sphere(5, 50, 50);
 
     _cube = ColorCube(_width, _height);
+    _cube->init();
 }
 
-void MyGLWindow::draw(const float delta)
+void MyGLWindow::draw(const float currentTime, const float deltaTime)
 {
     // position, size
     glViewport(0, 0, _width, _height);
@@ -182,6 +183,14 @@ void MyGLWindow::draw(const float delta)
     static float spinAngle = 0.0f;
     static bool open = true;
     static bool spinning = false;
+    static std::string windowName = "Objects";
+
+    ImGui::Begin(windowName.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Checkbox("Spin", &spinning);
+    ImGui::SliderFloat("Rotation Speed", &rotationSpeed, 0.0f, 100.0f);
+    ImGui::SliderFloat("Rotation Angle X", &rotationAngle, -180.0f, 180);
+    ImGui::SliderFloat("Rotation Angle Z", &spinAngle, 0.0f, 360.0f);
+    ImGui::End();
 
     {
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0, 0.0f));
@@ -195,21 +204,17 @@ void MyGLWindow::draw(const float delta)
 
         glUniformMatrix4fv(this->_shaderProgramColor.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 
-        if (_cube.has_value())
+        if (_cube.has_value()) {
+            _cube->imgui(windowName);
+            _cube->update(currentTime, deltaTime);
             _cube->draw();
+        }
 
         _shaderProgramColor.disable();
     }
 
     // particleSystem->updateParticles(delta); // Update the particles
     // particleSystem->renderParticles(mvp); // Render the particles
-
-    ImGui::Begin("Object Properties", &open, ImGuiWindowFlags_AlwaysAutoResize);
-    ImGui::Checkbox("Spin", &spinning);
-    ImGui::SliderFloat("Rotation Speed", &rotationSpeed, 0.0f, 100.0f);
-    ImGui::SliderFloat("Rotation Angle X", &rotationAngle, -180.0f, 180);
-    ImGui::SliderFloat("Rotation Angle Z", &spinAngle, 0.0f, 360.0f);
-    ImGui::End();
 
     // call shader program
     /*{

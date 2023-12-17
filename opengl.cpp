@@ -169,7 +169,7 @@ int main(int ac, char **av)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        myGLWindow->draw(delta);
+        myGLWindow->draw(currentTime, delta);
         // draw fps
         frame++;
         if (currentTime - lastTime >= 1.0) {

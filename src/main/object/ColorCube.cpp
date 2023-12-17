@@ -4,7 +4,9 @@
 
 #include "object/ColorCube.hpp"
 
-ColorCube::ColorCube(int width, int height) : vaoHandle(0), vboCubeVertices(0), vboCubeColors(0), iboCubeElements(0)
+#include <glm/ext/scalar_constants.hpp>
+
+ColorCube::ColorCube(int width, int height) : vboCubeVertices(0), vboCubeColors(0), iboCubeElements(0)
 {
     _width = width;
     _height = height;
@@ -41,8 +43,43 @@ ColorCube::ColorCube(int width, int height) : vaoHandle(0), vboCubeVertices(0), 
         4, 0, 3, 3, 7, 4, 4, 5, 1,
         1, 0, 4, 3, 2, 6, 6, 7, 3
     };
+}
 
-    this->setup();
+void ColorCube::imgui(const std::string&mainWindowName)
+{
+    ImGui::Begin(mainWindowName.c_str());
+    if (ImGui::CollapsingHeader("Cube Properties")) {
+        if (ImGui::Button("Reset Color"))
+            _resetColor = true;
+        ImGui::Checkbox("Rotate Color", &_rotateColor);
+        ImGui::SliderFloat("Rotating Speed", &_rotatingSpeed, 0.0f, 1.0f);
+    }
+    ImGui::End();
+}
+
+void ColorCube::update(float currentTime, float deltaTime)
+{
+    static std::vector<GLfloat> cubeColorCopy(cubeColors.size());
+    static bool firstTime = true;
+    if (firstTime) {
+        cubeColorCopy = cubeColors;
+        firstTime = false;
+    }
+
+    if (_resetColor) {
+        cubeColorCopy = cubeColors;
+        _resetColor = false;
+    }
+
+    for (int i = 0; this->_rotateColor && i < cubeColorCopy.size(); i += 3) {
+        const float offset = (i / 3) * (2.0f * glm::pi<float>() / cubeColorCopy.size() * 3); // offset each face's color by a fraction of 2PI
+        cubeColorCopy[i] = (std::sin(currentTime + offset) + 1.0f) / 2.0f; // Red
+        cubeColorCopy[i + 1] = (std::sin(currentTime + offset + 2.0f * glm::pi<float>() / 3.0f) + 1.0f) / 2.0f; // Green
+        cubeColorCopy[i + 2] = (std::sin(currentTime + offset + 4.0f * glm::pi<float>() / 3.0f) + 1.0f) / 2.0f; // Blue
+    }
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboCubeColors); // select VBO
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeColorCopy[0]) * cubeColorCopy.size(), cubeColorCopy.data(), GL_STATIC_DRAW); // copy data to VBO
 }
 
 void ColorCube::draw() const
@@ -52,9 +89,10 @@ void ColorCube::draw() const
     int size = 0;
     glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
     glDrawElements(GL_TRIANGLES, size / sizeof(GLushort), GL_UNSIGNED_SHORT, nullptr);
+    glBindVertexArray(0); // close the current _vaoHandle
 }
 
-void ColorCube::setup()
+void ColorCube::init()
 {
     // Create _vaoHandle vertex position
     glGenVertexArrays(1, &vaoHandle);
