@@ -36,7 +36,7 @@ class MyGLWindow {
 public:
     explicit MyGLWindow(int width, int height);
 
-    void draw();
+    void draw(const float delta);
 
     void setSize(int width, int height)
     {
@@ -52,7 +52,7 @@ public:
     std::optional<Viewer> viewer;
 private:
     ShaderProgram _shaderProgram;
-    ShaderProgram _shaderProgramFloor;
+    ShaderProgram _shaderProgramColor;
     ShaderProgram _shaderProgramTeapot;
     ShaderProgram _shaderProgramTorus;
     ShaderProgram _shaderProgramBunnyTextured;

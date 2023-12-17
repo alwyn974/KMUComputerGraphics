@@ -59,6 +59,8 @@ add_executable(KMU lib/gl3w/gl3w.c
         include/object/Ogre.hpp
         src/main/Skybox.cpp
         include/Skybox.hpp
+        src/main/ParticleSystem.cpp
+        src/main/ParticleSystem.hpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)
 

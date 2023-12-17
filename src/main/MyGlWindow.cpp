@@ -60,10 +60,14 @@ MyGLWindow::MyGLWindow(int width, int height)
     this->initialize();
 }
 
+#include "ParticleSystem.hpp"
+
+std::optional<ParticleSystem> particleSystem;
+
 void MyGLWindow::initialize()
 {
     //    this->_shaderProgram.initFromFiles("src/resources/shader/lightning/phong.vert", "src/resources/shader/lightning/phong.frag");
-    this->_shaderProgramFloor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
+    this->_shaderProgramColor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
     //    this->_shaderProgramBunnyTextured.initFromFiles("src/resources/shader/texture/two_layers.vert", "src/resources/shader/texture/two_layers.frag");
     // this->_shaderProgramOgre.initFromFiles("src/resources/shader/normal_mapping/simple.vert", "src/resources/shader/normal_mapping/simple.frag");
     //    this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
@@ -96,11 +100,11 @@ void MyGLWindow::initialize()
     // this->_shaderProgramOgre.addUniform("ColorTex");
     // this->_shaderProgramOgre.addUniform("NormalMapTex");
 
-    this->_shaderProgramFloor.addUniform("MVP"); // Projection * View * Model : mat4
+    this->_shaderProgramColor.addUniform("MVP"); // Projection * View * Model : mat4
 
     _floor = CheckeredFloor(100, 10);
 
-    _teapot = VBOTeapot(64, glm::mat4(1.0f));
+    // _teapot = VBOTeapot(64, glm::mat4(1.0f));
     //    _torus = VBOTorus(1.5f, 0.75f, 50, 50);
 
     //    _bunny = Bunny();
@@ -110,7 +114,7 @@ void MyGLWindow::initialize()
 
     // _ogre = Ogre("src/resources/textures/ogre_diffuse2.png", "src/resources/textures/ogre_normalmap2.png");
 
-    this->_shaderProgramSkybox.initFromFiles("src/resources/shader/skybox/skybox.vert", "src/resources/shader/skybox/skybox.frag");
+    /*this->_shaderProgramSkybox.initFromFiles("src/resources/shader/skybox/skybox.vert", "src/resources/shader/skybox/skybox.frag");
     this->_shaderProgramSkybox.addUniform("DrawSkyBox"); //This is boolean variable for special use, more in later
     this->_shaderProgramSkybox.addUniform("WorldCameraPosition"); //Camera position in the world space
 
@@ -118,27 +122,29 @@ void MyGLWindow::initialize()
     this->_shaderProgramSkybox.addUniform("MVP");
     this->_shaderProgramSkybox.addUniform("CubeMapTex"); //cubemap texture
     this->_shaderProgramSkybox.addUniform("MaterialColor"); //Object color
-    this->_shaderProgramSkybox.addUniform("ReflectFactor"); //Ratio of mixup the objectcolor with cubemap color
+    this->_shaderProgramSkybox.addUniform("ReflectFactor"); //Ratio of mixup the objectcolor with cubemap color*/
 
 
     // Create skybox
-    const std::vector<std::string> faces{
+    /*const std::vector<std::string> faces = {
         "src/resources/textures/skybox/right.jpg",
         "src/resources/textures/skybox/left.jpg",
         "src/resources/textures/skybox/top.jpg",
         "src/resources/textures/skybox/bottom.jpg",
         "src/resources/textures/skybox/front.jpg",
         "src/resources/textures/skybox/back.jpg"
-    };
-    _skybox = Skybox(/*faces*/);
+    };*/
+    // _skybox = Skybox(/*faces*/);
+
+    particleSystem = ParticleSystem(1000);
 
     // _cow = Cow();
     // _sphere = Sphere(5, 50, 50);
 
-    // _cube = ColorCube(_width, _height);
+    _cube = ColorCube(_width, _height);
 }
 
-void MyGLWindow::draw()
+void MyGLWindow::draw(const float delta)
 {
     // position, size
     glViewport(0, 0, _width, _height);
@@ -152,20 +158,22 @@ void MyGLWindow::draw()
 
     glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 10000.0f);
 
-    /*{
+    {
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
         glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0, 0.0, 0.0));
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
         glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
 
-        this->_shaderProgramFloor.use();
+        glm::mat4 mvp = projection * view * model;
 
-        glUniformMatrix4fv(this->_shaderProgramFloor.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+        this->_shaderProgramColor.use();
+
+        glUniformMatrix4fv(this->_shaderProgramColor.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
         if (_floor.has_value())
             _floor->draw();
 
-        this->_shaderProgramFloor.disable();
-    }*/
+        this->_shaderProgramColor.disable();
+    }
 
     glm::vec4 lightPos(10, 10, 0, 1);
     glm::vec3 lightIntensity(0.8, 0.8, 0.8);
@@ -175,12 +183,33 @@ void MyGLWindow::draw()
     static bool open = true;
     static bool spinning = false;
 
-    /*ImGui::Begin("Object Properties", &open, ImGuiWindowFlags_AlwaysAutoResize);
+    {
+        glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0, 0.0f));
+        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0, 0.0, 0.0));
+        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
+        glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
+
+        glm::mat4 mvp = projection * view * model;
+
+        _shaderProgramColor.use();
+
+        glUniformMatrix4fv(this->_shaderProgramColor.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+
+        if (_cube.has_value())
+            _cube->draw();
+
+        _shaderProgramColor.disable();
+    }
+
+    // particleSystem->updateParticles(delta); // Update the particles
+    // particleSystem->renderParticles(mvp); // Render the particles
+
+    ImGui::Begin("Object Properties", &open, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Checkbox("Spin", &spinning);
     ImGui::SliderFloat("Rotation Speed", &rotationSpeed, 0.0f, 100.0f);
     ImGui::SliderFloat("Rotation Angle X", &rotationAngle, -180.0f, 180);
     ImGui::SliderFloat("Rotation Angle Z", &spinAngle, 0.0f, 360.0f);
-    ImGui::End();*/
+    ImGui::End();
 
     // call shader program
     /*{
@@ -243,7 +272,7 @@ void MyGLWindow::draw()
         this->_shaderProgramOgre.disable();
     }*/
 
-    {
+    /*{
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
         glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(rotationAngle), glm::vec3(1.0, 0.0, 0.0));
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
@@ -279,7 +308,7 @@ void MyGLWindow::draw()
         }
 
         this->_shaderProgramSkybox.disable();
-    }
+    }*/
 
     /*{
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, 0.5f, 0.0f));

@@ -156,6 +156,9 @@ int main(int ac, char **av)
         // clear screen
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // also clear the depth buffer now!
+        const double currentTime = glfwGetTime();
+        const auto delta = static_cast<float>(currentTime - lastTime);
+        lastTime = currentTime;
 
         // poll events
         glfwPollEvents();
@@ -166,14 +169,13 @@ int main(int ac, char **av)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        myGLWindow->draw();
+        myGLWindow->draw(delta);
         // draw fps
         frame++;
-        double currentTime = glfwGetTime();
         if (currentTime - lastTime >= 1.0) {
-            std::cout << frame << " fps" << std::endl;
+            std::cout << "FPS: " << frame << std::endl;
             frame = 0;
-            lastTime = currentTime;
+            lastTime += 1.0;
         }
 
         ImGui::Render();
