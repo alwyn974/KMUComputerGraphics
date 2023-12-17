@@ -5,8 +5,10 @@
 #ifndef ABSTRACT_DRAWABLE_HPP
 #define ABSTRACT_DRAWABLE_HPP
 
+#include <stdexcept>
 #include <string>
 
+#include <glm/gtx/string_cast.hpp>
 #include "GL/gl3w.h"
 #include "imgui.h"
 #include "imgui_stdlib.h"
@@ -16,12 +18,19 @@
 class AbstractDrawable {
 public:
     AbstractDrawable() = default;
+
     virtual ~AbstractDrawable() = default;
 
     /**
      * \brief Initialize the drawable
+     * Generate the vertex array object
      */
-    virtual void init() = 0;
+    virtual void init()
+    {
+        glGenVertexArrays(1, &vaoHandle);
+        glBindVertexArray(vaoHandle);
+        initialized = true;
+    };
 
     /**
      * \brief Update the drawable
@@ -34,15 +43,21 @@ public:
      * \brief Render imgui elements
      * \param mainWindowName The name of the main window
      */
-    virtual void imgui(const std::string &mainWindowName) = 0;
+    virtual void imgui(const std::string&mainWindowName) = 0;
 
     /**
      * \brief Draw the drawable
+     * \throws std::runtime_error if the drawable is not initialized
      */
-    virtual void draw() const = 0;
+    virtual void draw() const
+    {
+        if (!initialized)
+            throw std::runtime_error("Drawable not initialized");
+    }
 
 protected:
     GLuint vaoHandle = 0;
+    bool initialized = false;
 };
 
 #endif //ABSTRACT_DRAWABLE_HPP

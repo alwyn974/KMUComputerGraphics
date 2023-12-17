@@ -8,7 +8,7 @@
 #include <memory>
 
 #ifdef WIN32
-#ifdef __cplusplus
+    #ifdef __cplusplus
 extern "C" {
 #endif
 
@@ -17,16 +17,16 @@ __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
 
 #ifdef __cplusplus
 }
-#endif
+    #endif
 #endif
 
 std::unique_ptr<MyGLWindow> myGLWindow;
-bool lButtonDown;
-bool rButtonDown;
-bool mButtonDown;
-double lastMouseX;
-double lastMouseY;
-double cx, cy;
+//bool lButtonDown;
+//bool rButtonDown;
+//bool mButtonDown;
+//double lastMouseX;
+//double lastMouseY;
+//double cx, cy;
 
 static void window_size_callback(GLFWwindow *window, int width, int height)
 {
@@ -42,62 +42,61 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos)
+static void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
 {
-    cx = xpos;
-    cy = ypos;
+    myGLWindow->setMousePosition(glm::vec2(xpos, ypos));
 }
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
 {
     if (action == GLFW_PRESS) {
         double xpos, ypos;
         glfwGetCursorPos(window, &xpos, &ypos);
-        lastMouseX = xpos;
-        lastMouseY = ypos;
+        myGLWindow->setLastMousePosition(glm::vec2(xpos, ypos));
     }
 
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (GLFW_PRESS == action)
-            lButtonDown = true;
+            myGLWindow->setLButtonDown(true);
         else if (GLFW_RELEASE == action)
-            lButtonDown = false;
-    }
-
-    else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+            myGLWindow->setLButtonDown(false);
+    } else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (GLFW_PRESS == action)
-            rButtonDown = true;
+            myGLWindow->setRButtonDown(true);
         else if (GLFW_RELEASE == action)
-            rButtonDown = false;
-    }
-
-    else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+            myGLWindow->setRButtonDown(false);
+    } else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
         if (GLFW_PRESS == action)
-            mButtonDown = true;
+            myGLWindow->setMButtonDown(true);
         else if (GLFW_RELEASE == action)
-            mButtonDown = false;
+            myGLWindow->setMButtonDown(false);
     }
 }
 
 void mouseDragging(double width, double height)
 {
-    if (lButtonDown) {
+    auto mousePos = myGLWindow->getMousePosition();
+    double cx = mousePos.x;
+    double cy = mousePos.y;
+
+    auto lastMousePos = myGLWindow->getLastMousePosition();
+    double lastMouseX = lastMousePos.x;
+    double lastMouseY = lastMousePos.y;
+
+    if (myGLWindow->isLButtonDown()) {
         float fractionChangeX = static_cast<float>(cx - lastMouseX) / static_cast<float>(width);
         float fractionChangeY = static_cast<float>(lastMouseY - cy) / static_cast<float>(height);
         myGLWindow->viewer->rotate(fractionChangeX, fractionChangeY);
-    }
-    else if (mButtonDown) {
+    } else if (myGLWindow->isMButtonDown()) {
         float fractionChangeX = static_cast<float>(cx - lastMouseX) / static_cast<float>(width);
         float fractionChangeY = static_cast<float>(lastMouseY - cy) / static_cast<float>(height);
         myGLWindow->viewer->zoom(fractionChangeY);
-    }
-    else if (rButtonDown) {
+    } else if (myGLWindow->isRButtonDown()) {
         float fractionChangeX = static_cast<float>(cx - lastMouseX) / static_cast<float>(width);
         float fractionChangeY = static_cast<float>(lastMouseY - cy) / static_cast<float>(height);
         myGLWindow->viewer->translate(-fractionChangeX, -fractionChangeY, 1);
     }
-    lastMouseX = cx;
-    lastMouseY = cy;
+    myGLWindow->setLastMousePosition(myGLWindow->getMousePosition());
 }
 
 int main(int ac, char **av)
@@ -129,7 +128,7 @@ int main(int ac, char **av)
     std::cout << "OpenGL " << glGetString(GL_VERSION) << " " << "GLSL " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
     std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
     std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
-//    glfwSwapInterval(1);
+    //    glfwSwapInterval(1);
 
     glfwSetKeyCallback(window, key_callback);
     glfwSetWindowSizeCallback(window, window_size_callback);
@@ -142,7 +141,7 @@ int main(int ac, char **av)
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
+    ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 

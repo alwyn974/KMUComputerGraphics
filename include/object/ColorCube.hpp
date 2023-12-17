@@ -5,13 +5,15 @@
 #ifndef KMU_COLORCUBE_HPP
 #define KMU_COLORCUBE_HPP
 
+#include <optional>
+
 #include "AbstractDrawable.hpp"
 #include "glm/glm.hpp"
 #include <vector>
 
 class ColorCube : public AbstractDrawable {
 public:
-    explicit ColorCube(int width, int height);
+    explicit ColorCube(float width, float height, float depth = 1.0f, std::optional<glm::vec3> color = std::nullopt);
 
     void init() override;
     void update(float currentTime, float deltaTime) override;
@@ -20,10 +22,11 @@ public:
 
 private:
     GLuint vboCubeVertices, vboCubeColors, iboCubeElements;
-    int _width;
-    int _height;
-    std::vector<GLfloat> cubeVertices; // TODO: replace later with glm::vec3
-    std::vector<GLfloat> cubeColors;
+    float _width;
+    float _height;
+    float _depth;
+    std::vector<glm::vec3> cubeVertices;
+    std::vector<glm::vec3> cubeColors;
     std::vector<GLushort> cubeElements;
 
     bool _resetColor = false;

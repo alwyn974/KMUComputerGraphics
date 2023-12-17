@@ -3,7 +3,7 @@
 //
 
 #include <array>
-#include "../../include/Skybox.hpp"
+#include "Skybox.hpp"
 
 #include "external/stb_image.h"
 

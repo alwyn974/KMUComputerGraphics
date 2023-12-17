@@ -4,38 +4,46 @@
 
 #include "object/ColorCube.hpp"
 
+#include <iostream>
 #include <glm/ext/scalar_constants.hpp>
 
-ColorCube::ColorCube(int width, int height) : vboCubeVertices(0), vboCubeColors(0), iboCubeElements(0)
+ColorCube::ColorCube(float width, float height, float depth, std::optional<glm::vec3> color) : vboCubeVertices(0), vboCubeColors(0), iboCubeElements(0)
 {
     _width = width;
     _height = height;
+    _depth = depth;
 
     cubeVertices = {
         // front
-        -1.0, -1.0, 1.0,
-        1.0, -1.0, 1.0,
-        1.0, 1.0, 1.0,
-        -1.0, 1.0, 1.0,
+        {-_width, -_height, _depth},
+        {_width, -_height, _depth},
+        {_width, _height, _depth},
+        {-_width, _height, _depth},
         // back
-        -1.0, -1.0, -1.0,
-        1.0, -1.0, -1.0,
-        1.0, 1.0, -1.0,
-        -1.0, 1.0, -1.0
+        {-_width, -_height, -_depth},
+        {_width, -_height, -_depth},
+        {_width, _height, -_depth},
+        {-_width, _height, -_depth},
     };
 
-    cubeColors = {
-        // front colors
-        1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, 0.0, 1.0,
-        1.0, 1.0, 1.0,
-        // back colors
-        1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, 0.0, 1.0,
-        1.0, 1.0, 1.0
-    };
+    if (!color) {
+        cubeColors = {
+            // front colors
+            {1.0, 0.0, 0.0},
+            {0.0, 1.0, 0.0},
+            {0.0, 0.0, 1.0},
+            {1.0, 1.0, 1.0},
+            // back colors
+            {1.0, 0.0, 0.0},
+            {0.0, 1.0, 0.0},
+            {0.0, 0.0, 1.0},
+            {1.0, 1.0, 1.0}
+        };
+    }
+    else {
+        for (int i = 0; i < 8; i++)
+            cubeColors.push_back(*color);
+    }
 
     cubeElements = {
         0, 1, 2, 2, 3, 0, 1, 5, 6,
@@ -53,13 +61,16 @@ void ColorCube::imgui(const std::string&mainWindowName)
             _resetColor = true;
         ImGui::Checkbox("Rotate Color", &_rotateColor);
         ImGui::SliderFloat("Rotating Speed", &_rotatingSpeed, 0.0f, 1.0f);
+        ImGui::SliderFloat("Width", &_width, 0.1f, 10.0f);
+        ImGui::SliderFloat("Height", &_height, 0.1f, 10.0f);
+        ImGui::SliderFloat("Depth", &_depth, 0.1f, 10.0f);
     }
     ImGui::End();
 }
 
 void ColorCube::update(float currentTime, float deltaTime)
 {
-    static std::vector<GLfloat> cubeColorCopy(cubeColors.size());
+    static std::vector<glm::vec3> cubeColorCopy(cubeColors.size());
     static bool firstTime = true;
     if (firstTime) {
         cubeColorCopy = cubeColors;
@@ -71,19 +82,40 @@ void ColorCube::update(float currentTime, float deltaTime)
         _resetColor = false;
     }
 
-    for (int i = 0; this->_rotateColor && i < cubeColorCopy.size(); i += 3) {
+    for (int i = 0; this->_rotateColor && i < cubeColorCopy.size(); i++) {
         const float offset = (i / 3) * (2.0f * glm::pi<float>() / cubeColorCopy.size() * 3); // offset each face's color by a fraction of 2PI
-        cubeColorCopy[i] = (std::sin(currentTime + offset) + 1.0f) / 2.0f; // Red
-        cubeColorCopy[i + 1] = (std::sin(currentTime + offset + 2.0f * glm::pi<float>() / 3.0f) + 1.0f) / 2.0f; // Green
-        cubeColorCopy[i + 2] = (std::sin(currentTime + offset + 4.0f * glm::pi<float>() / 3.0f) + 1.0f) / 2.0f; // Blue
+        cubeColorCopy[i] = glm::vec3(
+            (glm::sin(currentTime * _rotatingSpeed + offset) + 1.0f) / 2.0f,
+            (glm::sin(currentTime * _rotatingSpeed + offset + 2.0f * glm::pi<float>() / 3.0f) + 1.0f) / 2.0f,
+            (glm::sin(currentTime * _rotatingSpeed + offset + 4.0f * glm::pi<float>() / 3.0f) + 1.0f) / 2.0f
+        );
     }
 
     glBindBuffer(GL_ARRAY_BUFFER, vboCubeColors); // select VBO
     glBufferData(GL_ARRAY_BUFFER, sizeof(cubeColorCopy[0]) * cubeColorCopy.size(), cubeColorCopy.data(), GL_STATIC_DRAW); // copy data to VBO
+
+    cubeVertices = {
+        // front
+        {-_width, -_height, _depth},
+        {_width, -_height, _depth},
+        {_width, _height, _depth},
+        {-_width, _height, _depth},
+        // back
+        {-_width, -_height, -_depth},
+        {_width, -_height, -_depth},
+        {_width, _height, -_depth},
+        {-_width, _height, -_depth},
+    };
+
+    // Update VBO for vertex position
+    glBindBuffer(GL_ARRAY_BUFFER, vboCubeVertices); // select VBO
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices[0]) * cubeVertices.size(), cubeVertices.data(), GL_STATIC_DRAW); // copy data to VBO
 }
 
 void ColorCube::draw() const
 {
+    AbstractDrawable::draw();
+
     glBindVertexArray(vaoHandle); // select _vaoHandle
     glDrawArrays(GL_TRIANGLES, 0, 8); // first: primitive type, second: start index, third: number of vertices
     int size = 0;
@@ -94,9 +126,8 @@ void ColorCube::draw() const
 
 void ColorCube::init()
 {
-    // Create _vaoHandle vertex position
-    glGenVertexArrays(1, &vaoHandle);
-    glBindVertexArray(vaoHandle); // select _vaoHandle
+    AbstractDrawable::init();
+
     // Create VBO for vertex position
     glGenBuffers(1, &vboCubeVertices);
     glBindBuffer(GL_ARRAY_BUFFER, vboCubeVertices); // select VBO

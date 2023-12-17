@@ -57,6 +57,10 @@ add_executable(KMU lib/gl3w/gl3w.c
         src/main/Skybox.cpp
         src/main/ParticleSystem.cpp
         include/AbstractDrawable.hpp
+        src/main/object/LaserBeam.cpp
+        include/object/LaserBeam.hpp
+        src/main/object/Cylinder.cpp
+        include/object/Cylinder.hpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)
 

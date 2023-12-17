@@ -4,12 +4,13 @@
 
 #include "object/CheckeredFloor.hpp"
 
-CheckeredFloor::CheckeredFloor(int size, int nsquare) : _size(size), _nsquare(nsquare), vao(0), vboVertices(0), vboColors(0) {
-    generate();
+CheckeredFloor::CheckeredFloor(int size, int nsquare) : _size(size), _nsquare(nsquare), vboVertices(0), vboColors(0) {
 }
 
-void CheckeredFloor::generate()
+void CheckeredFloor::init()
 {
+    AbstractDrawable::init();
+
     float squareSize = static_cast<float>(_size) / _nsquare;
     float halfSize = _size * 0.5f;
     glm::vec3 color1(0.7f, 0.7f, 0.7f);
@@ -43,9 +44,9 @@ void CheckeredFloor::generate()
         }
     }
 
-    // Generate and bind _vaoHandle
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    // Generate and bind vaoHandle
+    glGenVertexArrays(1, &vaoHandle);
+    glBindVertexArray(vaoHandle);
 
     // Generate and bind VBO for vertices
     glGenBuffers(1, &vboVertices);
@@ -65,9 +66,20 @@ void CheckeredFloor::generate()
     glBindVertexArray(0);
 }
 
-void CheckeredFloor::draw()
+void CheckeredFloor::update(float currentTime, float deltaTime)
 {
-    glBindVertexArray(vao);
+}
+
+void CheckeredFloor::imgui(const std::string& mainWindowName)
+{
+}
+
+void CheckeredFloor::draw() const
+{
+    AbstractDrawable::draw();
+
+    glBindVertexArray(vaoHandle);
     glDrawArrays(GL_TRIANGLES, 0, vertices.size());
     glBindVertexArray(0);
 }
+
