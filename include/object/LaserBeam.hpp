@@ -12,10 +12,27 @@
 class LaserBeam : public ColorCube {
 public:
     explicit LaserBeam(float width = 0.8, float height = 0.2, float depth = 1.0f, std::optional<glm::vec3> color = std::nullopt);
+
+    void init() override;
+
+    void update(float currentTime, float deltaTime) override;
+
+    glm::mat4 getModelMatrix()
+    {
+        return _modelMatrix;
+    }
+
+    float getVelocity() const
+    {
+        return _velocity;
+    }
+
+    void imgui(const std::string &mainWindowName, const ImGuiTreeNodeFlags_ &flags = ImGuiTreeNodeFlags_None) override;
+
 private:
     float _velocity;
-    glm::vec3 _direction;
-    glm::vec3 _position;
+    bool _move = false;
+    glm::mat4 _modelMatrix;
 };
 
 #endif //LASERBEAM_HPP

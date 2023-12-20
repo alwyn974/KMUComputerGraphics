@@ -70,7 +70,7 @@ void CheckeredFloor::update(float currentTime, float deltaTime)
 {
 }
 
-void CheckeredFloor::imgui(const std::string& mainWindowName)
+void CheckeredFloor::imgui(const std::string& mainWindowName, const ImGuiTreeNodeFlags_ &flags)
 {
 }
 

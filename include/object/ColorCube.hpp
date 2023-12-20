@@ -17,7 +17,7 @@ public:
 
     void init() override;
     void update(float currentTime, float deltaTime) override;
-    void imgui(const std::string& mainWindowName) override;
+    void imgui(const std::string& mainWindowName, const ImGuiTreeNodeFlags_ &flags = ImGuiTreeNodeFlags_None) override;
     void draw() const override;
 
 private:

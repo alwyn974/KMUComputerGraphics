@@ -117,28 +117,24 @@ public:
 
     std::optional<Viewer> viewer;
 private:
-    ShaderProgram _shaderProgram;
+    ShaderProgram _shaderProgramLaserBeam;
     ShaderProgram _shaderProgramColor;
-    ShaderProgram _shaderProgramTeapot;
-    ShaderProgram _shaderProgramTorus;
-    ShaderProgram _shaderProgramBunnyTextured;
-    ShaderProgram _shaderProgramOgre;
-    ShaderProgram _shaderProgramSkybox;
     int _width;
     int _height;
     std::optional<ColorCube> _cube;
     std::optional<CheckeredFloor> _floor;
-    std::optional<Cow> _cow;
-    std::optional<Sphere> _sphere;
-    std::optional<VBOTeapot> _teapot;
-    std::optional<VBOTorus> _torus;
-    std::optional<Bunny> _bunny;
-    std::optional<BunnyTextured> _bunnyTextured;
-    std::optional<Earth> _earth;
-    std::optional<Ogre> _ogre;
-    std::optional<Skybox> _skybox;
-    std::optional<Cylinder> _cylinder;
+//    std::optional<Cow> _cow;
+//    std::optional<Sphere> _sphere;
+//    std::optional<VBOTeapot> _teapot;
+//    std::optional<VBOTorus> _torus;
+//    std::optional<Bunny> _bunny;
+//    std::optional<BunnyTextured> _bunnyTextured;
+//    std::optional<Earth> _earth;
+//    std::optional<Ogre> _ogre;
+//    std::optional<Skybox> _skybox;
+//    std::optional<Cylinder> _cylinder;
 
+    std::optional<LaserBeam> _laserBeam;
     std::unique_ptr<AbstractDrawable> _drawable;
 
     glm::vec2 _mousePosition;

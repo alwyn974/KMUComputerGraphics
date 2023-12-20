@@ -81,7 +81,7 @@ void Cylinder::update(float currentTime, float deltaTime)
 {
 }
 
-void Cylinder::imgui(const std::string&mainWindowName)
+void Cylinder::imgui(const std::string&mainWindowName, const ImGuiTreeNodeFlags_ &flags)
 {
 }
 

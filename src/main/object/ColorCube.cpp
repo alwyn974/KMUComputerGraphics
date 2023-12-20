@@ -53,10 +53,10 @@ ColorCube::ColorCube(float width, float height, float depth, std::optional<glm::
     };
 }
 
-void ColorCube::imgui(const std::string&mainWindowName)
+void ColorCube::imgui(const std::string&mainWindowName, const ImGuiTreeNodeFlags_ &flags)
 {
     ImGui::Begin(mainWindowName.c_str());
-    if (ImGui::CollapsingHeader("Cube Properties")) {
+    if (ImGui::CollapsingHeader("Cube Properties", flags)) {
         if (ImGui::Button("Reset Color"))
             _resetColor = true;
         ImGui::Checkbox("Rotate Color", &_rotateColor);

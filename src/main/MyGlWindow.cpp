@@ -5,7 +5,7 @@
 #include <array>
 #include "MyGlWindow.hpp"
 
-static float DEFAULT_VIEW_POINT[3] = {5, 5, 5};
+static float DEFAULT_VIEW_POINT[3] = {-0.25, 12, 34};
 static float DEFAULT_VIEW_CENTER[3] = {0, 0, 0};
 static float DEFAULT_UP_VECTOR[3] = {0, 1, 0};
 
@@ -66,41 +66,11 @@ MyGLWindow::MyGLWindow(int width, int height)
 
 void MyGLWindow::initialize()
 {
-    //    this->_shaderProgram.initFromFiles("src/resources/shader/lightning/phong.vert", "src/resources/shader/lightning/phong.frag");
     this->_shaderProgramColor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
-    //    this->_shaderProgramBunnyTextured.initFromFiles("src/resources/shader/texture/two_layers.vert", "src/resources/shader/texture/two_layers.frag");
-    // this->_shaderProgramOgre.initFromFiles("src/resources/shader/normal_mapping/simple.vert", "src/resources/shader/normal_mapping/simple.frag");
-    //    this->_shaderProgramTeapot.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
-    //    this->_shaderProgramTorus.initFromFiles("src/resources/shader/lightning/phong_in_frag.vert", "src/resources/shader/lightning/phong_in_frag.frag");
-    // TODO: use only one shader program for teapot and torus
-
-    /*const std::array<ShaderProgram *, 2> shaderPrograms = {&_shaderProgramTeapot, &_shaderProgramTorus};
-    for (const auto &shaderProgram: shaderPrograms) {
-        shaderProgram->addUniform("LightPosition");
-        shaderProgram->addUniform("LightIntensity");
-        shaderProgram->addUniform("Ka");
-        shaderProgram->addUniform("Kd");
-        shaderProgram->addUniform("Ks");
-        shaderProgram->addUniform("Shiness");
-
-        shaderProgram->addUniform("ModelViewMatrix"); // View*Model : mat4
-        shaderProgram->addUniform("NormalMatrix"); // Refer next slide : mat3
-        shaderProgram->addUniform("MVP"); // Projection * View * Model : mat4
-    }*/
-    // this->_shaderProgramOgre.addUniform("LightPosition");
-    // this->_shaderProgramOgre.addUniform("LightIntensity");
-    // this->_shaderProgramOgre.addUniform("Ka");
-    //    this->_shaderProgramOgre.addUniform("Kd");
-    // this->_shaderProgramOgre.addUniform("Ks");
-    // this->_shaderProgramOgre.addUniform("Shiness");
-
-    // this->_shaderProgramOgre.addUniform("ModelViewMatrix"); // View*Model : mat4
-    // this->_shaderProgramOgre.addUniform("NormalMatrix"); // Refer next slide : mat3
-    // this->_shaderProgramOgre.addUniform("MVP"); // Projection * View * Model : mat4
-    // this->_shaderProgramOgre.addUniform("ColorTex");
-    // this->_shaderProgramOgre.addUniform("NormalMapTex");
-
     this->_shaderProgramColor.addUniform("MVP"); // Projection * View * Model : mat4
+
+    this->_shaderProgramLaserBeam.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
+    this->_shaderProgramLaserBeam.addUniform("MVP");
 
     _floor = CheckeredFloor(100, 10);
     _floor->init();
@@ -114,16 +84,6 @@ void MyGLWindow::initialize()
     //    _earth = Earth(1, 50, 50, "src/resources/textures/earth.jpg");
 
     // _ogre = Ogre("src/resources/textures/ogre_diffuse2.png", "src/resources/textures/ogre_normalmap2.png");
-
-    /*this->_shaderProgramSkybox.initFromFiles("src/resources/shader/skybox/skybox.vert", "src/resources/shader/skybox/skybox.frag");
-    this->_shaderProgramSkybox.addUniform("DrawSkyBox"); //This is boolean variable for special use, more in later
-    this->_shaderProgramSkybox.addUniform("WorldCameraPosition"); //Camera position in the world space
-
-    this->_shaderProgramSkybox.addUniform("ModelMatrix"); //Model Matrix for converting from local to world
-    this->_shaderProgramSkybox.addUniform("MVP");
-    this->_shaderProgramSkybox.addUniform("CubeMapTex"); //cubemap texture
-    this->_shaderProgramSkybox.addUniform("MaterialColor"); //Object color
-    this->_shaderProgramSkybox.addUniform("ReflectFactor"); //Ratio of mixup the objectcolor with cubemap color*/
 
     // Create skybox
     /*const std::vector<std::string> faces = {
@@ -144,8 +104,12 @@ void MyGLWindow::initialize()
     _cube = ColorCube(0.5, 0.5, 0.5);
     _cube->init();
 
-    _drawable = std::make_unique<LaserBeam>(0.8, 0.1, 0.1, glm::vec3(0, 0, 1));
-    _drawable->init();
+    const float multiplier = 4;
+    _laserBeam = LaserBeam(0.8f * multiplier, 0.1f * multiplier, 0.1f * multiplier, glm::vec3(0, 0, 1));
+    _laserBeam->init();
+
+//    _drawable = std::make_unique<LaserBeam>(0.8, 0.1, 0.1, glm::vec3(0, 0, 1));
+//    _drawable->init();
 }
 
 glm::vec3 raycast(float mouseX, float mouseY, int width, int height, glm::mat4 projection, glm::mat4 view)
@@ -192,12 +156,19 @@ void MyGLWindow::draw(const float currentTime, const float deltaTime)
     glm::vec3 look = viewer->getViewCenter();
     glm::vec3 up = viewer->getUpVector();
     glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
+    std::cout << glm::to_string(view) << std::endl;
+    std::cout << glm::to_string(eye) << std::endl;
+    std::cout << glm::to_string(look) << std::endl;
+    std::cout << glm::to_string(up) << std::endl;
+    std::cout <<" glm::to_string(viewer->getProjectionMatrix()) "<< std::endl;
 
     static std::string windowName = "Objects";
     static bool open = true;
     static bool drawPlane = true;
+    static bool drawLaserBeam = true;
 
     ImGui::Begin(windowName.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
     ImGui::Checkbox("Draw Plane", &drawPlane);
 
     glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 10000.0f);
@@ -218,104 +189,25 @@ void MyGLWindow::draw(const float currentTime, const float deltaTime)
         this->_shaderProgramColor.disable();
     }
 
-    glm::vec4 lightPos(10, 10, 0, 1);
-    glm::vec3 lightIntensity(0.8, 0.8, 0.8);
-    static float rotationSpeed = 0.5f;
-    static float rotationAngle = 0.0f;
-    static float spinAngle = 0.0f;
-    static bool spinning = false;
-    static bool mouseClicked = false;
-
-    {
-        glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0, 0.0f));
-        glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0, 0.0, 0.0));
-        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
-        glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
+    ImGui::Checkbox("Draw Laser Beam", &drawLaserBeam);
+    if (drawLaserBeam) {
+        glm::mat4 model = _laserBeam->getModelMatrix(); // Combination of transformation matrix
 
         glm::mat4 mvp = projection * view * model;
 
-        _shaderProgramColor.use();
+        _shaderProgramLaserBeam.use();
 
-        glUniformMatrix4fv(this->_shaderProgramColor.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+        glUniformMatrix4fv(this->_shaderProgramLaserBeam.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
 
-        if (_drawable) {
-            _drawable->imgui(windowName);
-            _drawable->update(currentTime, deltaTime);
-            _drawable->draw();
+        {
+            _laserBeam->imgui(windowName, ImGuiTreeNodeFlags_DefaultOpen);
+            _laserBeam->update(currentTime, deltaTime);
+            _laserBeam->draw();
         }
 
-        if (this->isLButtonDown())
-            mouseClicked = true;
-
-        if (this->isRButtonDown())
-            mouseClicked = false;
-
-        if (mouseClicked) {
-            GLuint vao;
-            glGenVertexArrays(1, &vao);
-            glBindVertexArray(vao);
-
-            auto mousePos = this->getMousePosition();
-            auto mousePosInWorldCoordinate = this->getMouseRay(view, projection);
-            auto raycast = ::raycast(mousePos.x, mousePos.y, _width, _height, projection, view);
-            std::cout << "Raycast: " << glm::to_string(raycast) << std::endl;
-            std::cout << "Mouse position in world coordinate: " << glm::to_string(mousePosInWorldCoordinate.position) << std::endl;
-            std::cout << "Mouse direction in world coordinate: " << glm::to_string(mousePosInWorldCoordinate.direction) << std::endl;
-            glm::vec3 origin = {0, 0, 0};
-            glm::vec3 end = mousePosInWorldCoordinate.position;
-            std::array<glm::vec3, 2> vertices = {origin, end};
-            std::array<glm::vec3, 2> colors = {glm::vec3(1, 0, 0), glm::vec3(1, 0, 0)};
-
-            GLuint vboVertices;
-            glGenBuffers(1, &vboVertices);
-            glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-            glEnableVertexAttribArray(0);
-
-            GLuint vboColors;
-            glGenBuffers(1, &vboColors);
-            glBindBuffer(GL_ARRAY_BUFFER, vboColors);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * colors.size(), colors.data(), GL_STATIC_DRAW);
-            glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-            glEnableVertexAttribArray(1);
-
-            glBindVertexArray(vao);
-            glDrawArrays(GL_LINES, 0, 2);
-            glDeleteBuffers(1, &vboVertices);
-            glDeleteBuffers(1, &vboColors);
-            glDeleteVertexArrays(1, &vao);
-
-            glBindVertexArray(0);
-        }
-
-        _shaderProgramColor.disable();
+        _shaderProgramLaserBeam.disable();
     }
     ImGui::End();
-
-    if (mouseClicked) {
-        GLuint vao;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
-
-        auto mousePos = this->getMousePosition();
-        auto mousePosInWorldCoordinate = this->getMouseRay(view, projection);
-
-        glm::mat4 translate = glm::translate(glm::mat4(1.0f), mousePosInWorldCoordinate.position);
-        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
-        glm::mat4 model = translate * scale; // Combination of transformation matrix
-
-        glm::mat4 mvp = projection * view * model;
-
-        _shaderProgramColor.use();
-
-        glUniformMatrix4fv(this->_shaderProgramColor.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
-
-        //        if (_cube.has_value())
-        //            _cube->draw();
-
-        _shaderProgramColor.disable();
-    }
 
     // particleSystem->updateParticles(delta); // Update the particles
     // particleSystem->renderParticles(mvp); // Render the particles

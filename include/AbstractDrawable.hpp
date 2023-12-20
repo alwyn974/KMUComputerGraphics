@@ -42,8 +42,9 @@ public:
     /**
      * \brief Render imgui elements
      * \param mainWindowName The name of the main window
+     * \param flags The flags to pass to ImGui::TreeNode
      */
-    virtual void imgui(const std::string&mainWindowName) = 0;
+    virtual void imgui(const std::string&mainWindowName, const ImGuiTreeNodeFlags_ &flags = ImGuiTreeNodeFlags_None) = 0;
 
     /**
      * \brief Draw the drawable
