@@ -24,6 +24,7 @@
 #include "object/LaserBeam.hpp"
 #include "Skybox.hpp"
 #include "GL/gl3w.h"
+#include "ParticleSystem.hpp"
 
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -31,6 +32,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <glm/glm.hpp>
 #include <optional>
+
 
 // Ray, ray for raycasting
 typedef struct Ray {
@@ -119,6 +121,8 @@ public:
 private:
     ShaderProgram _shaderProgramLaserBeam;
     ShaderProgram _shaderProgramColor;
+    ShaderProgram _shaderProgramParticle;
+
     int _width;
     int _height;
     std::optional<ColorCube> _cube;
@@ -134,6 +138,7 @@ private:
 //    std::optional<Skybox> _skybox;
 //    std::optional<Cylinder> _cylinder;
 
+    std::optional<ParticleSystem> _particleSystem;
     std::optional<LaserBeam> _laserBeam;
     std::unique_ptr<AbstractDrawable> _drawable;
 

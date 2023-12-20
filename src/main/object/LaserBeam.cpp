@@ -30,7 +30,7 @@ void LaserBeam::imgui(const std::string &mainWindowName, const ImGuiTreeNodeFlag
     ImGui::Begin(mainWindowName.c_str());
     if (ImGui::CollapsingHeader("Laser Beam Properties", flags)) {
         ImGui::Checkbox("Move", &_move);
-        ImGui::SliderFloat("Velocity", &_velocity, 0.0f, 100.0f);
+        ImGui::SliderFloat("Velocity", &_velocity, 0.0f, 10000.0f);
     }
     ImGui::End();
 }

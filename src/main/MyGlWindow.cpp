@@ -60,17 +60,16 @@ MyGLWindow::MyGLWindow(int width, int height)
     this->initialize();
 }
 
-// #include "ParticleSystem.hpp"
-//
-// std::optional<ParticleSystem> particleSystem;
-
 void MyGLWindow::initialize()
 {
     this->_shaderProgramColor.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
     this->_shaderProgramColor.addUniform("MVP"); // Projection * View * Model : mat4
 
-    this->_shaderProgramLaserBeam.initFromFiles("src/resources/shader/color/simple.vert", "src/resources/shader/color/simple.frag");
+    this->_shaderProgramLaserBeam.initFromFiles("src/resources/shader/glow/simple.vert", "src/resources/shader/glow/simple.frag");
     this->_shaderProgramLaserBeam.addUniform("MVP");
+
+    this->_shaderProgramParticle.initFromFiles("src/resources/shader/particle/particle.vert", "src/resources/shader/particle/particle.frag");
+    this->_shaderProgramParticle.addUniform("MVP");
 
     _floor = CheckeredFloor(100, 10);
     _floor->init();
@@ -96,7 +95,7 @@ void MyGLWindow::initialize()
     };*/
     // _skybox = Skybox(/*faces*/);
 
-    // particleSystem = ParticleSystem(1000);
+    _particleSystem = ParticleSystem(1000);
 
     // _cow = Cow();
     // _sphere = Sphere(5, 50, 50);
@@ -108,8 +107,8 @@ void MyGLWindow::initialize()
     _laserBeam = LaserBeam(0.8f * multiplier, 0.1f * multiplier, 0.1f * multiplier, glm::vec3(0, 0, 1));
     _laserBeam->init();
 
-//    _drawable = std::make_unique<LaserBeam>(0.8, 0.1, 0.1, glm::vec3(0, 0, 1));
-//    _drawable->init();
+    //    _drawable = std::make_unique<LaserBeam>(0.8, 0.1, 0.1, glm::vec3(0, 0, 1));
+    //    _drawable->init();
 }
 
 glm::vec3 raycast(float mouseX, float mouseY, int width, int height, glm::mat4 projection, glm::mat4 view)
@@ -156,16 +155,13 @@ void MyGLWindow::draw(const float currentTime, const float deltaTime)
     glm::vec3 look = viewer->getViewCenter();
     glm::vec3 up = viewer->getUpVector();
     glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
-    std::cout << glm::to_string(view) << std::endl;
-    std::cout << glm::to_string(eye) << std::endl;
-    std::cout << glm::to_string(look) << std::endl;
-    std::cout << glm::to_string(up) << std::endl;
-    std::cout <<" glm::to_string(viewer->getProjectionMatrix()) "<< std::endl;
 
     static std::string windowName = "Objects";
     static bool open = true;
     static bool drawPlane = true;
-    static bool drawLaserBeam = true;
+    static bool drawLaserBeam = false;
+    static bool drawParticles = true;
+    static bool mouseClicked = false;
 
     ImGui::Begin(windowName.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize);
     ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
@@ -207,10 +203,98 @@ void MyGLWindow::draw(const float currentTime, const float deltaTime)
 
         _shaderProgramLaserBeam.disable();
     }
-    ImGui::End();
 
-    // particleSystem->updateParticles(delta); // Update the particles
-    // particleSystem->renderParticles(mvp); // Render the particles
+    ImGui::Checkbox("Draw Particles", &drawParticles);
+    if (drawParticles) {
+        const glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
+        const glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0, 0.0, 0.0));
+        const glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(10, 10, 10));
+        const glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
+
+        const glm::mat4 mvp = projection * view * model;
+
+        _shaderProgramColor.use();
+
+        _particleSystem->updateParticles(deltaTime); // Update the particles
+        _particleSystem->renderParticles(mvp);
+
+        /*GLuint vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        std::vector<Particle> particles(100);
+        for (auto &particle : particles) {
+            float x = ((float) rand() / (RAND_MAX)) * 2 - 1;
+            float y = ((float) rand() / (RAND_MAX)) * 2 - 1;
+            float z = ((float) rand() / (RAND_MAX)) * 2 - 1;
+            particle.position = glm::vec3(x, y, z);
+//            particle.position = glm::vec3(1.0f); // Set initial position
+            particle.velocity = glm::vec3(0.0f); // Set initial velocity
+            particle.color = glm::vec3(1.0f, 0, 0); // Set initial color
+            particle.life = 1.0f; // Set initial life
+            particle.size = 1.0f; // Set initial size
+        }
+        std::vector<glm::vec3> positions;
+        std::vector<glm::vec3> colors;
+
+        for (const auto &particle : particles) {
+            positions.push_back(particle.position);
+            colors.push_back(particle.color);
+        }
+
+        GLuint vboVertices;
+        glGenBuffers(1, &vboVertices);
+        glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+        glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glEnableVertexAttribArray(0);
+
+        GLuint vboColors;
+        glGenBuffers(1, &vboColors);
+        glBindBuffer(GL_ARRAY_BUFFER, vboColors);
+        glBufferData(GL_ARRAY_BUFFER, colors.size() * sizeof(glm::vec3), colors.data(), GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glEnableVertexAttribArray(1);
+
+        glBindVertexArray(vao);
+        glDrawArrays(GL_POINTS, 0, positions.size());*/
+
+        /*std::vector<glm::vec3> vertices = {
+            {0.0f, 0.0f, 0.0f},
+            {0.0f, 5.0f, 0.0f}
+        };
+        std::vector<glm::vec4> colors = {
+            {1.0f, 0.0f, 0.0f, 1.0f},
+            {1.0f, 0.0f, 0.0f, 1.0f}
+        };
+
+        GLuint vboVertices;
+        glGenBuffers(1, &vboVertices);
+        glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glEnableVertexAttribArray(0);
+
+        GLuint vboColors;
+        glGenBuffers(1, &vboColors);
+        glBindBuffer(GL_ARRAY_BUFFER, vboColors);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec4) * colors.size(), colors.data(), GL_STATIC_DRAW);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glEnableVertexAttribArray(1);
+
+        glBindVertexArray(vao);
+        glDrawArrays(GL_LINES, 0, vertices.size());*/
+
+        //        glDeleteBuffers(1, &vboVertices);
+        //        glDeleteBuffers(1, &vboColors);
+        //        glDeleteVertexArrays(1, &vao);
+
+        glBindVertexArray(0);
+
+        _shaderProgramColor.disable();
+    }
+
+    ImGui::End();
 
     // call shader program
     /*{
