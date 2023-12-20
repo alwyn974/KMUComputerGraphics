@@ -143,9 +143,9 @@ private:
 
     glm::vec2 _mousePosition;
     glm::vec2 _lastMousePosition;
-    bool _lButtonDown;
-    bool _rButtonDown;
-    bool _mButtonDown;
+    bool _lButtonDown = false;
+    bool _rButtonDown = false;
+    bool _mButtonDown = false;
 
     void initialize();
 };

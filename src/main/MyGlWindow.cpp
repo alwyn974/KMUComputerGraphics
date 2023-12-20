@@ -193,14 +193,21 @@ void MyGLWindow::draw(const float currentTime, const float deltaTime)
     glm::vec3 up = viewer->getUpVector();
     glm::mat4 view = lookAt(eye, look, up); // Calculate view matrix from paramters of viewer
 
+    static std::string windowName = "Objects";
+    static bool open = true;
+    static bool drawPlane = true;
+
+    ImGui::Begin(windowName.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Checkbox("Draw Plane", &drawPlane);
+
     glm::mat4 projection = perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 10000.0f);
-    {
+    if (drawPlane) {
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0, 0.0f));
         glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), glm::radians(0.0f), glm::vec3(1.0, 0.0, 0.0));
         glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1, 1, 1));
         glm::mat4 model = translate * rotate * scale; // Combination of transformation matrix
 
-        glm::mat4 mvp = projection * view /** model*/;
+        glm::mat4 mvp = projection * view * model;
 
         this->_shaderProgramColor.use();
 
@@ -216,17 +223,8 @@ void MyGLWindow::draw(const float currentTime, const float deltaTime)
     static float rotationSpeed = 0.5f;
     static float rotationAngle = 0.0f;
     static float spinAngle = 0.0f;
-    static bool open = true;
     static bool spinning = false;
-    static std::string windowName = "Objects";
-    static bool mouseClicked = true;
-    static glm::vec2 mousePos = glm::vec2(0, 0);
-
-    ImGui::Begin(windowName.c_str(), &open, ImGuiWindowFlags_AlwaysAutoResize);
-    // ImGui::Checkbox("Spin", &spinning);
-    // ImGui::SliderFloat("Rotation Speed", &rotationSpeed, 0.0f, 100.0f);
-    // ImGui::SliderFloat("Rotation Angle X", &rotationAngle, -180.0f, 180);
-    // ImGui::SliderFloat("Rotation Angle Z", &spinAngle, 0.0f, 360.0f);
+    static bool mouseClicked = false;
 
     {
         glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0, 0.0f));
@@ -249,6 +247,9 @@ void MyGLWindow::draw(const float currentTime, const float deltaTime)
         if (this->isLButtonDown())
             mouseClicked = true;
 
+        if (this->isRButtonDown())
+            mouseClicked = false;
+
         if (mouseClicked) {
             GLuint vao;
             glGenVertexArrays(1, &vao);
@@ -256,11 +257,12 @@ void MyGLWindow::draw(const float currentTime, const float deltaTime)
 
             auto mousePos = this->getMousePosition();
             auto mousePosInWorldCoordinate = this->getMouseRay(view, projection);
+            auto raycast = ::raycast(mousePos.x, mousePos.y, _width, _height, projection, view);
+            std::cout << "Raycast: " << glm::to_string(raycast) << std::endl;
             std::cout << "Mouse position in world coordinate: " << glm::to_string(mousePosInWorldCoordinate.position) << std::endl;
             std::cout << "Mouse direction in world coordinate: " << glm::to_string(mousePosInWorldCoordinate.direction) << std::endl;
             glm::vec3 origin = {0, 0, 0};
             glm::vec3 end = mousePosInWorldCoordinate.position;
-            end += mousePosInWorldCoordinate.direction * 100.0f;
             std::array<glm::vec3, 2> vertices = {origin, end};
             std::array<glm::vec3, 2> colors = {glm::vec3(1, 0, 0), glm::vec3(1, 0, 0)};
 
@@ -290,6 +292,30 @@ void MyGLWindow::draw(const float currentTime, const float deltaTime)
         _shaderProgramColor.disable();
     }
     ImGui::End();
+
+    if (mouseClicked) {
+        GLuint vao;
+        glGenVertexArrays(1, &vao);
+        glBindVertexArray(vao);
+
+        auto mousePos = this->getMousePosition();
+        auto mousePosInWorldCoordinate = this->getMouseRay(view, projection);
+
+        glm::mat4 translate = glm::translate(glm::mat4(1.0f), mousePosInWorldCoordinate.position);
+        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
+        glm::mat4 model = translate * scale; // Combination of transformation matrix
+
+        glm::mat4 mvp = projection * view * model;
+
+        _shaderProgramColor.use();
+
+        glUniformMatrix4fv(this->_shaderProgramColor.uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
+
+        //        if (_cube.has_value())
+        //            _cube->draw();
+
+        _shaderProgramColor.disable();
+    }
 
     // particleSystem->updateParticles(delta); // Update the particles
     // particleSystem->renderParticles(mvp); // Render the particles
@@ -458,7 +484,7 @@ Ray MyGLWindow::getMouseRay(glm::mat4 view, mat4 projection)
     glm::vec3 cameraPlanePointerPos = Vector3Unproject(glm::vec3{deviceCoords.x, deviceCoords.y, -1.0f}, projection, view);
 
     // Calculate normalized direction vector
-    glm::vec3 direction =  glm::normalize(farPoint - nearPoint);
+    glm::vec3 direction = glm::normalize(farPoint - nearPoint);
 
     ray.position = viewer->getViewPoint();
     // Apply calculated vectors to ray
