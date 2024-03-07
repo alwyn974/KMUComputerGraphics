@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.22)
+cmake_minimum_required(VERSION 3.5)
 project(KMU)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -25,11 +25,14 @@ find_package(OpenGL REQUIRED)
 
 include_directories(
         include
-        lib/gl3w/include
+        lib/Cyclone
         "${CMAKE_CURRENT_SOURCE_DIR}/src/external/imgui"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/external/imgui/misc/cpp"
 )
-add_executable(KMU lib/gl3w/gl3w.c
+file(GLOB_RECURSE CYCLONE_FILES "lib/Cyclone/*.cpp" "lib/Cyclone/*.h")
+add_executable(KMU
+        ${CYCLONE_FILES}
+
         src/external/imgui/imgui.cpp
         src/external/imgui/imgui_draw.cpp
         src/external/imgui/imgui_tables.cpp
@@ -38,27 +41,8 @@ add_executable(KMU lib/gl3w/gl3w.c
         src/external/imgui/imgui_demo.cpp
         src/external/imgui/imgui_impl_glfw.cpp
         src/external/imgui/imgui_impl_opengl3.cpp
-        #main.cpp
-        opengl.cpp
-        src/main/MyGlWindow.cpp
-        src/main/Viewer.cpp
-        src/main/object/ColorCube.cpp
-        src/main/object/CheckeredFloor.cpp
-        src/main/Global.cpp
-        src/main/object/VBOTeapot.cpp
-        src/main/object/VBOTorus.cpp
-        src/main/object/Bunny.cpp
-        src/main/object/Sphere.cpp
-        src/main/MaterialColor.cpp
-        src/main/object/Cow.cpp
-        src/main/object/BunnyTextured.cpp
-        src/main/object/Earth.cpp
-        src/main/object/Ogre.cpp
-        src/main/Skybox.cpp
-        src/main/ParticleSystem.cpp
-        include/AbstractDrawable.hpp
-        src/main/object/LaserBeam.cpp
-        src/main/object/Cylinder.cpp
+
+        main.cpp
 )
 target_link_libraries(${PROJECT_NAME} glfw glm OpenGL::GL)
 
