@@ -9,7 +9,7 @@
 
 #include "core.h"
 
-int main()
+void cyclonePractice()
 {
     // Move point p(1,4,-5) to vector v(5,1,4)
     cyclone::Vector3 p(1, 4, -5);
@@ -43,4 +43,22 @@ int main()
     v5.normalise();
 
     std::cout << "v5: " << v5.toString() << std::endl;
+}
+
+void dotProduct()
+{
+    const double DEGREES_TO_RADIAN = M_PI / 180.0f;
+    const double RADIANS_TO_DEGREES = 180.0f / M_PI;
+    cyclone::Vector3 v(2, -1, 1);
+    cyclone::Vector3 u(1, 1, 2);
+    float d = v.dot(u);
+    float c = d / (u.magnitude() * v.magnitude());
+    double deg = acos(c) * RADIANS_TO_DEGREES;
+
+    std::cout << "Angle: " << deg << std::endl;
+}
+
+int main()
+{
+    dotProduct();
 }
