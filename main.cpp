@@ -87,7 +87,10 @@ int main()
 	choice->add("15");
 	choice->add("30");
 	choice->add("60");
-	choice->value(2);
+    choice->add("120");
+    choice->add("240");
+    choice->add("360");
+    choice->value(2);
 	choice->callback((Fl_Callback*)changeFrameCB, gl);
 
 
