@@ -16,13 +16,16 @@ public:
     cyclone::Vector3 m_position;
     cyclone::Vector3 m_velocity;
 
-    cyclone::Particle * m_particle;
+    cyclone::Particle *m_particle;
+    cyclone::Vector3 wind;
 
     Mover()
     {
         size = 1.0f;
         m_position = cyclone::Vector3(3, 1, 0);
         m_velocity = cyclone::Vector3(5, 0, 0);
+
+        wind = cyclone::Vector3(1, 0, 0);
 
         m_particle = new cyclone::Particle();
         m_particle->setPosition(5, 20, 0);  //initial pos
@@ -37,8 +40,7 @@ public:
         cyclone::Vector3 pos;
         m_particle->getPosition(&pos);
 
-        if (pos.y <= size)
-        {
+        if (pos.y <= size) {
             pos.y = size;
             m_particle->setPosition(pos);
 
@@ -47,17 +49,23 @@ public:
             vel.y = -vel.y;
             m_particle->setVelocity(vel);
         }
+        // build invisible wall in x 100
+        if (pos.x >= 100) {
+            pos.x = 100;
+            m_particle->setPosition(pos);
+
+            cyclone::Vector3 vel;
+            m_particle->getVelocity(&vel);
+            vel.x = -vel.x;
+            m_particle->setVelocity(vel);
+        }
     }
 
     void update(float duration)
     {
+        m_particle->addForce(wind);
         m_particle->integrate(duration);
         checkEdges();  // Make this function to check collision
-
-//        m_position += m_velocity * duration;
-
-//        if (m_position.x > 100)
-//            m_position.x = 0;
     }
 
     void stop()
@@ -77,7 +85,7 @@ public:
         glPushMatrix();
         {
             glTranslatef(position.x, position.y, position.z);
-//            glTranslated(m_position.x, m_position.y, m_position.z);
+            //            glTranslated(m_position.x, m_position.y, m_position.z);
             glutSolidSphere(size, 30, 30);
         }
         glPopMatrix();
