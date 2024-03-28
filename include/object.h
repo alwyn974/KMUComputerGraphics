@@ -103,8 +103,10 @@ public:
 
         if (shadow)
             glColor3f(0.1f, 0.1f, 0.1f);
-        else
+        else {
+            glLoadName(1);
             glColor3f(1.0, 0, 0);
+        }
 
         glPushMatrix();
         {

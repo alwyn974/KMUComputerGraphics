@@ -65,6 +65,8 @@ MyGlWindow::MyGlWindow(int x, int y, int w, int h) :
 
     mover = new Mover();
 
+    //    movers.push_back(std::make_unique<Mover>());
+
     TimingData::init();
     run = 0;
 }
@@ -118,7 +120,6 @@ void MyGlWindow::drawStuff()
 void MyGlWindow::draw()
 //==========================================================================
 {
-
     glViewport(0, 0, w(), h());
 
     // clear the window, be sure to clear the Z-Buffer too
@@ -187,11 +188,15 @@ void MyGlWindow::draw()
     char s[] = "Alwyn";
     putText(s, 0, 0, 1, 1, 0);
 
+    glViewport(0, 0, w(), h());
+    setProjection();
     glEnable(GL_COLOR_MATERIAL);
 }
 
 void MyGlWindow::test()
 {
+    mover->m_position = cyclone::Vector3(0, 2, 0);
+    mover->m_particle->setPosition(mover->m_position);
 }
 
 void MyGlWindow::update()
@@ -223,7 +228,7 @@ void MyGlWindow::doPick()
     gluPickMatrix((double) mx, (double) (viewport[3] - my), 5, 5, viewport);
 
     // now set up the projection
-    setProjection();
+    setProjection(false);
 
     // now draw the objects - but really only see what we hit
     GLuint buf[100];
@@ -232,24 +237,30 @@ void MyGlWindow::doPick()
     glInitNames();
     glPushName(0);
 
+    mover->draw(0);
+
+    for (const auto &move: movers)
+        move->draw(0);
+
     // draw the cubes, loading the names as we go
-    //for (size_t i = 0; i < world->points.size(); ++i) {
-    //	glLoadName((GLuint)(i + 1));
-    //	draw();
-    //}
+    //    for (size_t i = 0; i < world->points.size(); ++i) {
+    //    	glLoadName((GLuint)(i + 1));
+    //    	draw();
+    //    }
 
     // go back to drawing mode, and see how picking did
     int hits = glRenderMode(GL_RENDER);
+    std::cout << "hits = " << hits << std::endl;
     if (hits) {
         // warning; this just grabs the first object hit - if there
         // are multiple objects, you really want to pick the closest
         // one - see the OpenGL manual
         // remember: we load names that are one more than the index
-        //selectedCube = buf[3] - 1;
+        selected = buf[3] - 1;
     } else {// nothing hit, nothing selected
-        //selectedCube = -1;
+        selected = -1;
     }
-    //printf("Selected Cube %d\n", selectedCube);
+    printf("Selected Cube %d\n", selected);
 }
 
 void MyGlWindow::setProjection(int clearProjection)
@@ -291,31 +302,55 @@ int MyGlWindow::handle(int e)
             show();
             return 1;
         case FL_PUSH: {
-
             m_pressedMouseButton = Fl::event_button();
             m_lastMouseX = Fl::event_x();
             m_lastMouseY = Fl::event_y();
+            std::cout << "Mouse button " << m_pressedMouseButton << " pressed" << std::endl;
+            if (m_pressedMouseButton == 1) {
+                doPick();
+
+                if (selected >= 0) {
+                    std::cout << "Selected" << std::endl;
+                }
+
+                damage(1);
+                return 1;
+            }
         }
-            damage(1);
-            return 1;
+            break;
         case FL_RELEASE:
             m_pressedMouseButton = -1;
             damage(1);
             return 1;
         case FL_DRAG: // if the user drags the mouse
         {
-
             float fractionChangeX = static_cast<float>(Fl::event_x() - m_lastMouseX) / static_cast<float>(this->w());
             float fractionChangeY = static_cast<float>(m_lastMouseY - Fl::event_y()) / static_cast<float>(this->h());
 
-            if (m_pressedMouseButton == 1) {
-                m_viewer->rotate(fractionChangeX, fractionChangeY);
-            } else if (m_pressedMouseButton == 2) {
-                m_viewer->zoom(fractionChangeY);
-            } else if (m_pressedMouseButton == 3) {
-                m_viewer->translate(-fractionChangeX, -fractionChangeY, (Fl::event_key(FL_Shift_L) == 0) || (Fl::event_key(FL_Shift_R) == 0));
+            if (selected >= 0 && m_pressedMouseButton == 1) {// if we pick a some object
+                double r1x, r1y, r1z, r2x, r2y, r2z;
+                getMouseLine(r1x, r1y, r1z, r2x, r2y, r2z);
+
+                double rx, ry, rz;
+                mousePoleGo(r1x, r1y, r1z, r2x, r2y, r2z,
+                            static_cast<double>(mover->m_particle->getPosition().x),
+                            static_cast<double>(mover->m_particle->getPosition().y),
+                            static_cast<double>(mover->m_particle->getPosition().z),
+                            rx, ry, rz,
+                            (Fl::event_state() & FL_CTRL) != 0);
+                mover->m_particle->setPosition(rx, ry, rz);
+                damage(1);
             } else {
-                std::cout << "Warning: dragging with unknown mouse button!  Nothing will be done" << std::endl;
+                if (m_pressedMouseButton == 1)
+                    m_viewer->rotate(fractionChangeX, fractionChangeY);
+                else if (m_pressedMouseButton == 2)
+                    m_viewer->zoom(fractionChangeY);
+                else if (m_pressedMouseButton == 3)
+                    m_viewer->translate(-fractionChangeX, -fractionChangeY, (Fl::event_key(FL_Shift_L) == 0) || (Fl::event_key(FL_Shift_R) == 0));
+                else
+                    std::cout << "Warning: dragging with unknown mouse button!  Nothing will be done" << std::endl;
+
+                damage(1);
             }
 
             m_lastMouseX = Fl::event_x();
@@ -340,12 +375,12 @@ void MyGlWindow::getMouseNDC(float &x, float &y)
 //==========================================================================
 {
     // notice, we put everything into doubles so we can do the math
-    float mx = (float) Fl::event_x();    // remeber where the mouse went down
-    float my = (float) Fl::event_y();
+    auto mx = (float) Fl::event_x();    // remeber where the mouse went down
+    auto my = (float) Fl::event_y();
 
     // we will assume that the viewport is the same as the window size
-    float wd = (float) w();
-    float hd = (float) h();
+    auto wd = (float) w();
+    auto hd = (float) h();
 
     // remember that FlTk has Y going the wrong way!
     my = hd - my;

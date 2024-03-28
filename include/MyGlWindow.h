@@ -28,6 +28,7 @@ class MyGlWindow : public Fl_Gl_Window {
 		
 		void putText(char* string, int x, int y, float r, float g, float b);
 		std::vector<Vec3f *> history;
+        int selected = -1;
 		
 
 		Fl_Slider* time;	
@@ -46,6 +47,7 @@ class MyGlWindow : public Fl_Gl_Window {
 		Viewer *m_viewer;
 
 
+        std::vector<std::unique_ptr<Mover>> movers;
 		Mover* mover;
 
 		void setProjection(int clearProjection = 1);
