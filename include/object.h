@@ -28,11 +28,35 @@ public:
         wind = cyclone::Vector3(1, 0, 0);
 
         m_particle = new cyclone::Particle();
-        m_particle->setPosition(5, 20, 0);  //initial pos
-        m_particle->setVelocity(0, 0, 0); //initial vel
-        m_particle->setMass(1.0f); //mass
-        m_particle->setDamping(0.99f); //damping
-        m_particle->setAcceleration(cyclone::Vector3::GRAVITY);  //initial acc.
+        m_particle->setPosition(5, 2, 0);  //initial pos
+//        m_particle->setVelocity(0, 0, 0); //initial vel
+//        m_particle->setMass(1.0f); //mass
+//        m_particle->setDamping(0.99f); //damping
+//        m_particle->setAcceleration(cyclone::Vector3::GRAVITY);  //initial acc.
+
+        //Laser
+//        m_particle->setMass(0.1f);
+//        m_particle->setVelocity(0, 0, 100);
+//        m_particle->setAcceleration(0, 0, 0);
+//        m_particle->setDamping(0.99f);
+
+        //Fireball
+        m_particle->setMass(1.0f); // 1.0kg - mostly blast damage
+        m_particle->setVelocity(0.0f, 0.0f, 10.0f); // 5m/s
+        m_particle->setAcceleration(0.0f, 0.6f, 0.0f); // Floats up
+        m_particle->setDamping(0.9f);
+
+        //Artillery
+//        m_particle->setMass(200.0f); // 200.0kg
+//        m_particle->setVelocity(0.0f, 30.0f, 40.0f); // 50m/s
+//        m_particle->setAcceleration(0.0f, -20.0f, 0.0f);
+//        m_particle->setDamping(0.99f);
+
+        //Pistol
+//        m_particle->setMass(2.0f); // 2.0kg
+//        m_particle->setVelocity(0.0f, 0.0f, 35.0f); // 35m/s
+//        m_particle->setAcceleration(0.0f, -1.0f, 0.0f);
+//        m_particle->setDamping(0.99f);
     };
 
     void checkEdges()
@@ -63,9 +87,9 @@ public:
 
     void update(float duration)
     {
-        m_particle->addForce(wind);
+//        m_particle->addForce(wind);
         m_particle->integrate(duration);
-        checkEdges();  // Make this function to check collision
+//        checkEdges();  // Make this function to check collision
     }
 
     void stop()
